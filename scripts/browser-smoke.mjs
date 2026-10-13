@@ -74,6 +74,12 @@ try {
     .waitFor({ timeout: 20_000 });
   assert.equal(instance.store.state.jobs[0].mode, 'upload');
   assert.equal(instance.store.state.jobs[0].result.changedPixels, 0);
+  const uploadMetadata = await page
+    .locator(`[data-job-id="${uploaded.id}"] .review-heading p`)
+    .textContent();
+  assert.match(uploadMetadata, /Uploaded PNGs/);
+  assert.doesNotMatch(uploadMetadata, /Chromium/);
+  await page.getByAltText('Baseline uploaded PNG', { exact: true }).waitFor();
   await page.setViewportSize({ width: 390, height: 844 });
   assert.equal(
     await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth),

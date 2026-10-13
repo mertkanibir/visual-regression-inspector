@@ -16,10 +16,13 @@ export async function createStore(directory) {
   let pending = Promise.resolve();
   const save = () => {
     const snapshot = JSON.stringify(state, null, 2);
-    pending = pending.then(async () => {
-      await writeFile(`${file}.tmp`, snapshot);
-      await rename(`${file}.tmp`, file);
-    });
+    // A failed save rejects its caller but must not poison later queued writes.
+    pending = pending
+      .catch(() => {})
+      .then(async () => {
+        await writeFile(`${file}.tmp`, snapshot);
+        await rename(`${file}.tmp`, file);
+      });
     return pending;
   };
   let recovered = false;

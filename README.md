@@ -98,7 +98,7 @@ The tests use actual Chromium; they do not mock a screenshot result.
 | PNG comparison | Zero changes, known full-image change, tolerance boundaries, dimension mismatch, and invalid PNG/size limits |
 | API integration | Real baseline/candidate capture, downloadable diff, zero-diff rerun against an accepted snapshot, persisted history after restart |
 | Concurrency | 30 simultaneous submissions produce exactly 20 admissions and 10 queue-limit responses; 8 simultaneous acceptance calls create one baseline |
-| Recovery and validation | Interrupted jobs become errors; invalid protocols, credentials, PNGs, and cross-site writes are rejected |
+| Recovery and validation | Interrupted jobs become errors; a real transient rename failure rejects its caller and later queued writes recover in order; invalid protocols, credentials, PNGs, and cross-site writes are rejected |
 | Browser story | Run demo, inspect all four views, accept baseline, rerun to zero changes, upload matching PNGs, browse history, and check a 390 px viewport without horizontal overflow or page errors |
 
 The included 1280 × 800 demo measured **25,727 changed pixels out of 1,024,000 (2.512%)** in the local browser walkthrough. Comparing its candidate to the accepted snapshot measured **0 changed pixels**. These are fixture results, not a throughput benchmark or a promise of identical percentages across operating systems. `docs/` contains the actual captured baseline, candidate, difference, desktop workspace, and mobile workspace PNGs.

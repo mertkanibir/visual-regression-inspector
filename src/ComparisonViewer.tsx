@@ -36,7 +36,8 @@ export default function ComparisonViewer({ job, onAccept, accepting }: Props) {
           <span className="step-label">02 / INSPECT</span>
           <h2>{job.name}</h2>
           <p>
-            {job.viewport.width} × {job.viewport.height} · Chromium ·{' '}
+            {job.viewport.width} × {job.viewport.height} ·{' '}
+            {job.mode === 'upload' ? 'Uploaded PNGs' : 'Chromium'} ·{' '}
             {new Date(job.createdAt).toLocaleString(undefined, {
               month: 'short',
               day: 'numeric',
@@ -73,7 +74,7 @@ export default function ComparisonViewer({ job, onAccept, accepting }: Props) {
           </strong>
         </div>
         <div>
-          <span>Capture + compare</span>
+          <span>{job.mode === 'upload' ? 'PNG comparison' : 'Capture + compare'}</span>
           <strong>
             {((job.durationMs || 0) / 1000).toFixed(1)}
             <small>s</small>
@@ -144,7 +145,9 @@ export default function ComparisonViewer({ job, onAccept, accepting }: Props) {
               </figcaption>
               <img
                 src={baselineImage}
-                alt="Baseline browser screenshot"
+                alt={
+                  job.mode === 'upload' ? 'Baseline uploaded PNG' : 'Baseline browser screenshot'
+                }
                 style={zoom === '100' ? { width: result.width } : undefined}
               />
             </figure>
@@ -154,7 +157,9 @@ export default function ComparisonViewer({ job, onAccept, accepting }: Props) {
               </figcaption>
               <img
                 src={candidateImage}
-                alt="Candidate browser screenshot"
+                alt={
+                  job.mode === 'upload' ? 'Candidate uploaded PNG' : 'Candidate browser screenshot'
+                }
                 style={zoom === '100' ? { width: result.width } : undefined}
               />
             </figure>
@@ -186,12 +191,12 @@ export default function ComparisonViewer({ job, onAccept, accepting }: Props) {
               <img
                 className="blend-base"
                 src={baselineImage}
-                alt="Baseline screenshot behind candidate"
+                alt="Baseline image behind candidate"
               />
               <img
                 className="blend-top"
                 src={candidateImage}
-                alt="Candidate screenshot overlay"
+                alt="Candidate image overlay"
                 style={
                   view === 'overlay'
                     ? { opacity: blend / 100 }
@@ -237,7 +242,7 @@ export default function ComparisonViewer({ job, onAccept, accepting }: Props) {
             href={candidateImage}
             target="_blank"
             rel="noreferrer"
-            aria-label="Open candidate screenshot"
+            aria-label={job.mode === 'upload' ? 'Open candidate PNG' : 'Open candidate screenshot'}
           >
             <ArrowUpRight size={16} />
           </a>
