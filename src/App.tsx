@@ -1,21 +1,15 @@
 import { useCallback, useEffect, useState } from 'react';
 import {
-  Triangle,
   Plus,
   Layers3,
   History,
   Bookmark,
   ArrowUpRight,
   ChevronRight,
-  Code2,
   CheckCircle2,
-  Scan,
-  Clock3,
   CircleAlert,
   X,
   Monitor,
-  TerminalSquare,
-  Zap,
   ArrowRight,
 } from 'lucide-react';
 import RunForm from './RunForm';
@@ -109,9 +103,17 @@ export default function App() {
       (filter === 'passed' && job.result?.passed) ||
       (filter === 'errors' && job.status === 'error'),
   );
+  const pageTitle =
+    page === 'workspace'
+      ? 'Visual comparisons'
+      : page === 'history'
+        ? 'Run history'
+        : page === 'baselines'
+          ? 'Saved baselines'
+          : 'Capture settings';
   return (
     <div className="app-shell">
-      <aside className="sidebar">
+      <header className="app-toolbar">
         <a
           className="brand"
           href="#"
@@ -120,424 +122,271 @@ export default function App() {
             setPage('workspace');
           }}
         >
-          <span className="brand-symbol">
-            <Triangle size={23} strokeWidth={2.3} />
-          </span>
-          <span>
-            prism<span className="brand-caption">VISUAL INSPECTOR</span>
-          </span>
+          Prism
         </a>
-        <div className="workspace-label">
-          <span className="workspace-avatar">MK</span>
-          <div>
-            Local workspace<small>Personal / Development</small>
-          </div>
-        </div>
-        <div className="nav-heading">WORKSPACE</div>
         <nav aria-label="Main navigation">
           {[
-            { id: 'workspace', name: 'Compare', icon: Layers3 },
-            { id: 'history', name: 'Run history', icon: History },
-            { id: 'baselines', name: 'Baselines', icon: Bookmark },
+            { id: 'workspace', name: 'Compare', label: 'Compare' },
+            { id: 'history', name: 'Runs', label: 'Run history' },
+            { id: 'baselines', name: 'Baselines', label: 'Baselines' },
+            { id: 'guide', name: 'Help', label: 'Help' },
           ].map((item) => (
             <button
               key={item.id}
-              aria-label={item.name}
+              aria-label={item.label}
+              aria-current={page === item.id ? 'page' : undefined}
               className={page === item.id ? 'nav-active' : ''}
               onClick={() => setPage(item.id as Page)}
             >
-              <item.icon size={18} />
-              <span>{item.name}</span>
-              {item.id === 'history' && jobs.length ? (
+              {item.name}
+              {item.id === 'history' ? (
                 <span className="nav-count">{jobs.length}</span>
-              ) : item.id === 'baselines' && baselines.length ? (
+              ) : item.id === 'baselines' ? (
                 <span className="nav-count">{baselines.length}</span>
               ) : null}
             </button>
           ))}
         </nav>
-        <div className="sidebar-bottom">
-          <div className="engine-card">
-            <span className={`engine-light ${online ? 'online' : ''}`} />
-            <strong>{online ? 'Local server connected' : 'Connecting to server'}</strong>
-            <p>
-              Chromium · pixelmatch
-              <br />
-              Everything stays on this machine.
-            </p>
-          </div>
-          <button className="guide-link" onClick={() => setPage('guide')}>
-            <TerminalSquare size={17} />
-            How it works
-            <ArrowUpRight size={15} />
-          </button>
-          <a
-            className="github-link"
-            href="https://github.com/mertkanibir/visual-regression-inspector"
-            target="_blank"
-            rel="noreferrer"
-          >
-            <Code2 size={17} /> View source <ArrowUpRight size={14} />
-          </a>
-          <div className="sidebar-version">
-            PRISM 1.0 <span>LOCAL FIRST</span>
-          </div>
+        <div className="toolbar-status">
+          <span className={`connection-dot ${online ? 'online' : ''}`} />
+          {online ? 'Local server connected' : 'Connecting to server'}
         </div>
-      </aside>
+        <a
+          className="source-link"
+          href="https://github.com/mertkanibir/visual-regression-inspector"
+          target="_blank"
+          rel="noreferrer"
+        >
+          Source
+          <ArrowUpRight size={13} />
+        </a>
+      </header>
       <main className="main-content">
-        <header className="topbar">
-          <div className="breadcrumb">
-            Workspace <ChevronRight size={13} />
-            <span>
-              {page === 'workspace'
-                ? 'Compare'
-                : page === 'history'
-                  ? 'Run history'
-                  : page === 'baselines'
-                    ? 'Baselines'
-                    : 'How it works'}
-            </span>
-          </div>
-          <span className="local-badge">
-            <i /> Local session
-          </span>
-        </header>
-        <div className="page-content">
-          <div className="page-heading">
-            <div>
-              <div className="eyebrow">SEE WHAT CHANGED</div>
-              <h1>
-                {page === 'workspace'
-                  ? 'Small changes. Full clarity.'
-                  : page === 'history'
-                    ? 'Every run, on record.'
-                    : page === 'baselines'
-                      ? 'A reference you can trust.'
-                      : 'From browser to evidence.'}
-              </h1>
-              <p>
-                {page === 'workspace'
-                  ? 'Capture, compare, and catch visual regressions before they ship.'
-                  : page === 'history'
-                    ? 'Your comparisons and their artifacts, saved between sessions.'
-                    : page === 'baselines'
-                      ? 'Accepted screenshots stay fixed while your application evolves.'
-                      : 'A focused local workbench for real visual regression testing.'}
-              </p>
-            </div>
-            <button className="primary-button" onClick={newComparison}>
-              <Plus size={17} /> New comparison
+        <div className="page-heading">
+          <h1>{pageTitle}</h1>
+          <button className="primary-button" onClick={newComparison}>
+            <Plus size={15} />
+            New comparison
+          </button>
+        </div>
+        {error ? (
+          <div className="error-banner" role="alert">
+            <CircleAlert size={16} />
+            <span>{error}</span>
+            <button className="icon-button" onClick={() => setError('')} aria-label="Dismiss error">
+              <X size={15} />
             </button>
           </div>
-          {error ? (
-            <div className="error-banner" role="alert">
-              <CircleAlert size={18} />
-              <span>{error}</span>
-              <button
-                className="icon-button"
-                onClick={() => setError('')}
-                aria-label="Dismiss error"
-              >
-                <X size={16} />
-              </button>
-            </div>
-          ) : null}
-          {toast ? (
-            <div className="toast" role="status">
-              <CheckCircle2 size={18} />
-              {toast}
-            </div>
-          ) : null}
-          {page === 'workspace' || page === 'history' ? (
-            <div className="summary-strip">
-              <Summary label="Total comparisons" value={jobs.length} icon={<Layers3 size={18} />} />
-              <Summary
-                label="Changes detected"
-                value={changed.length}
-                icon={<Scan size={18} />}
-                accent="pink"
+        ) : null}
+        {toast ? (
+          <div className="toast" role="status">
+            <CheckCircle2 size={16} />
+            {toast}
+          </div>
+        ) : null}
+        {page === 'workspace' ? (
+          <>
+            {showForm ? (
+              <RunForm
+                key={baselineId}
+                baselines={baselines}
+                initialBaseline={baselineId}
+                onCreated={created}
+                onClose={() => setShowForm(false)}
               />
-              <Summary
-                label="Within tolerance"
-                value={completed.length - changed.length}
-                icon={<CheckCircle2 size={18} />}
-                accent="green"
+            ) : null}
+            {selected?.status === 'complete' ? (
+              <ComparisonViewer
+                key={selected.id}
+                job={selected}
+                onAccept={accept}
+                accepting={accepting}
               />
-              <Summary
-                label="In progress"
-                value={busy.length}
-                icon={<Clock3 size={18} />}
-                accent="purple"
-              />
-            </div>
-          ) : null}
-          {page === 'workspace' ? (
-            <>
-              {showForm ? (
-                <RunForm
-                  key={baselineId}
-                  baselines={baselines}
-                  initialBaseline={baselineId}
-                  onCreated={created}
-                  onClose={() => setShowForm(false)}
-                />
-              ) : null}
-              {selected?.status === 'complete' ? (
-                <ComparisonViewer
-                  key={selected.id}
-                  job={selected}
-                  onAccept={accept}
-                  accepting={accepting}
-                />
-              ) : selected?.status === 'running' || selected?.status === 'queued' ? (
-                <div className="progress-panel" role="status">
-                  <div className="capture-animation">
-                    <Monitor size={32} />
-                    <span />
-                  </div>
-                  <span className="step-label">REAL BROWSER CAPTURE</span>
-                  <h2>
-                    {selected.status === 'queued'
-                      ? 'Your comparison is in the queue.'
-                      : 'Getting the full picture.'}
-                  </h2>
-                  <p>
-                    {selected.status === 'queued'
-                      ? 'Up to two comparisons run at once. Yours will start shortly.'
-                      : 'Opening isolated Chromium sessions, waiting for fonts and images, then comparing every pixel.'}
-                  </p>
-                  <div className="progress-steps">
-                    <span>01 Capture</span>
-                    <ChevronRight size={15} />
-                    <span>02 Compare</span>
-                    <ChevronRight size={15} />
-                    <span>03 Report</span>
-                  </div>
-                  <small>
-                    {selected.name} · {selected.viewport.width} × {selected.viewport.height}
-                  </small>
-                </div>
-              ) : selected?.status === 'error' ? (
-                <div className="empty-panel">
-                  <CircleAlert size={32} className="red-text" />
-                  <h2>Comparison couldn’t finish.</h2>
-                  <p>{selected.error}</p>
-                  <button className="primary-button" onClick={newComparison}>
-                    Try a new comparison
-                    <ArrowRight size={16} />
-                  </button>
-                </div>
-              ) : !showForm ? (
-                <div className="empty-panel">
-                  <div className="empty-prism">
-                    <Triangle size={37} />
-                  </div>
-                  <h2>Your next release, in focus.</h2>
-                  <p>
-                    Compare two web pages or PNGs. Start with the included Orbit demo to see a real
-                    visual regression in action.
-                  </p>
-                  <button className="primary-button" onClick={newComparison}>
-                    Set up a comparison
-                    <ArrowRight size={16} />
-                  </button>
-                </div>
-              ) : (
-                <div className="demo-note">
-                  <div className="demo-icon">
-                    <Zap size={20} />
-                  </div>
-                  <div>
-                    <strong>A real demo. A deliberate regression.</strong>
-                    <p>
-                      The included Orbit page changes its heading, button, and chart. Run the
-                      comparison above to inspect the evidence.
-                    </p>
-                  </div>
-                  <a href="/demo/baseline" target="_blank" rel="noreferrer">
-                    Preview baseline
-                    <ArrowUpRight size={15} />
-                  </a>
-                </div>
-              )}
-              {jobs.length ? (
-                <section className="recent-section">
-                  <div className="section-header">
-                    <h2>Recent comparisons</h2>
-                    <button className="text-button" onClick={() => setPage('history')}>
-                      View all
-                      <ArrowRight size={15} />
-                    </button>
-                  </div>
-                  <JobTable jobs={jobs.slice(0, 4)} selectedId={selectedId} onSelect={openJob} />
-                </section>
-              ) : null}
-            </>
-          ) : null}
-          {page === 'history' ? (
-            <section className="history-panel">
-              <div className="section-header">
+            ) : selected?.status === 'running' || selected?.status === 'queued' ? (
+              <section className="progress-panel" role="status">
                 <h2>
-                  Comparison history <span className="muted">/ {jobs.length}</span>
+                  {selected.status === 'queued'
+                    ? 'Comparison queued'
+                    : selected.mode === 'upload'
+                      ? 'Comparing PNGs'
+                      : 'Capturing web pages'}
                 </h2>
-                <div className="history-filters">
-                  {[
-                    ['all', 'All runs'],
-                    ['changed', 'Changed'],
-                    ['passed', 'Passed'],
-                    ['errors', 'Errors'],
-                  ].map(([value, label]) => (
-                    <button
-                      key={value}
-                      className={filter === value ? 'active' : ''}
-                      onClick={() => setFilter(value)}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              {history.length ? (
-                <JobTable jobs={history} selectedId={selectedId} onSelect={openJob} />
-              ) : (
-                <div className="compact-empty">
-                  <History size={28} />
-                  <p>No comparisons here yet.</p>
-                </div>
-              )}
-            </section>
-          ) : null}
-          {page === 'baselines' ? (
-            <div className="baseline-grid">
-              {baselines.length ? (
-                baselines.map((baseline) => (
-                  <article className="baseline-card" key={baseline.id}>
-                    <div className="baseline-image">
-                      <img
-                        src={artifact(baseline.id, 'baseline')}
-                        alt={`Accepted screenshot for ${baseline.name}`}
-                      />
-                    </div>
-                    <div className="baseline-details">
-                      <span className="status-pill pass">
-                        <Bookmark size={13} />
-                        Accepted reference
-                      </span>
-                      <h2>{baseline.name}</h2>
-                      <p title={baseline.sourceUrl}>{baseline.sourceUrl}</p>
-                      <div>
-                        <span>
-                          {baseline.viewport.width} × {baseline.viewport.height}
-                        </span>
-                        <span>{new Date(baseline.createdAt).toLocaleDateString()}</span>
-                      </div>
-                      <button className="secondary-button" onClick={() => useBaseline(baseline)}>
-                        Use this baseline
-                        <ArrowRight size={15} />
-                      </button>
-                    </div>
-                  </article>
-                ))
-              ) : (
-                <div className="empty-panel">
-                  <Bookmark size={32} />
-                  <h2>Make the right changes official.</h2>
-                  <p>
-                    After reviewing a completed comparison, accept the candidate. Prism saves an
-                    immutable screenshot for future runs.
-                  </p>
-                  <button className="primary-button" onClick={newComparison}>
-                    Start a comparison
-                    <ArrowRight size={16} />
-                  </button>
-                </div>
-              )}
-            </div>
-          ) : null}
-          {page === 'guide' ? (
-            <div className="guide-panel">
-              <div className="guide-flow">
-                {[
-                  {
-                    n: '01',
-                    title: 'Capture in Chromium',
-                    text: 'Each URL opens in an isolated browser context. Prism fixes the viewport, locale, time zone, and device scale. It waits for fonts and images and disables animations.',
-                  },
-                  {
-                    n: '02',
-                    title: 'Compare every pixel',
-                    text: 'Pixelmatch compares equally sized PNGs with 0.1 perceptual sensitivity. Antialiasing edges are ignored. Your allowed-change percentage determines pass or fail.',
-                  },
-                  {
-                    n: '03',
-                    title: 'Review and decide',
-                    text: 'Side-by-side, difference, overlay, and swipe views help you inspect changes. Accepting a candidate saves a new fixed reference without rewriting old reports.',
-                  },
-                ].map((item) => (
-                  <article key={item.n}>
-                    <span>{item.n}</span>
-                    <h2>{item.title}</h2>
-                    <p>{item.text}</p>
-                  </article>
-                ))}
-              </div>
-              <div className="guide-detail">
-                <h2>Designed for local development</h2>
                 <p>
-                  URLs can reach your machine and local services. Capture trusted pages only. Prism
-                  binds to loopback and has no shared-user authentication. Deploying it publicly
-                  requires network isolation, authentication, destination restrictions, and storage
-                  controls.
-                </p>
-                <h2>Keep comparisons stable</h2>
-                <p>
-                  Dynamic timestamps, random content, delayed widgets, and platform font differences
-                  can change screenshots. Use deterministic fixtures, identical capture
-                  environments, and review the actual image before accepting a baseline.
+                  {selected.status === 'queued'
+                    ? 'Waiting for a worker. Up to two comparisons run at once.'
+                    : selected.mode === 'upload'
+                      ? 'Decoding images and comparing pixels.'
+                      : 'Loading the baseline and candidate in Chromium; waiting for fonts and images.'}
                 </p>
                 <code>
-                  npm ci
-                  <br />
-                  npx playwright install chromium
-                  <br />
-                  npm run dev
+                  {selected.name} · {selected.viewport.width} × {selected.viewport.height} ·{' '}
+                  {selected.id.slice(0, 8)}
                 </code>
+              </section>
+            ) : selected?.status === 'error' ? (
+              <section className="empty-panel">
+                <h2>Comparison failed</h2>
+                <p>{selected.error}</p>
+                <button className="secondary-button" onClick={newComparison}>
+                  New comparison
+                </button>
+              </section>
+            ) : !showForm ? (
+              <section className="empty-panel">
+                <h2>No comparison selected</h2>
+                <p>Create a comparison from two URLs or matching PNG files.</p>
+                <button className="secondary-button" onClick={newComparison}>
+                  Capture settings
+                  <ArrowRight size={14} />
+                </button>
+              </section>
+            ) : (
+              <div className="demo-note">
                 <p>
-                  Data and PNG artifacts live in <code>.prism/</code> on this machine. They are
-                  excluded from Git. Stop the server before backing up or deleting this directory.
+                  The demo changes form alignment, button styling, and build-row spacing. Use the
+                  default URLs to inspect the difference.
                 </p>
+                <a href="/demo/baseline" target="_blank" rel="noreferrer">
+                  Open baseline
+                  <ArrowUpRight size={13} />
+                </a>
+              </div>
+            )}
+            {jobs.length ? (
+              <section className="recent-section">
+                <div className="section-header">
+                  <h2>Recent runs</h2>
+                  <button className="text-button" onClick={() => setPage('history')}>
+                    All runs
+                    <ArrowRight size={14} />
+                  </button>
+                </div>
+                <JobTable jobs={jobs.slice(0, 4)} selectedId={selectedId} onSelect={openJob} />
+              </section>
+            ) : null}
+          </>
+        ) : null}
+        {page === 'history' ? (
+          <section className="history-panel">
+            <div className="section-header">
+              <p className="history-counts">
+                {jobs.length} runs <span>·</span> {changed.length} changed <span>·</span>{' '}
+                {completed.length - changed.length} passed <span>·</span> {busy.length} pending
+              </p>
+              <div className="history-filters">
+                {[
+                  ['all', 'All runs'],
+                  ['changed', 'Changed'],
+                  ['passed', 'Passed'],
+                  ['errors', 'Errors'],
+                ].map(([value, label]) => (
+                  <button
+                    key={value}
+                    className={filter === value ? 'active' : ''}
+                    aria-pressed={filter === value}
+                    onClick={() => setFilter(value)}
+                  >
+                    {label}
+                  </button>
+                ))}
               </div>
             </div>
-          ) : null}
-          <footer className="main-footer">
-            <span>
-              <Triangle size={12} /> Built for changes worth seeing.
-            </span>
-            <span>Real captures. Reproducible evidence.</span>
-          </footer>
-        </div>
+            {history.length ? (
+              <JobTable jobs={history} selectedId={selectedId} onSelect={openJob} />
+            ) : (
+              <div className="compact-empty">
+                <History size={20} />
+                <p>No runs match this filter.</p>
+              </div>
+            )}
+          </section>
+        ) : null}
+        {page === 'baselines' ? (
+          <div className="baseline-list">
+            {baselines.length ? (
+              baselines.map((baseline) => (
+                <article className="baseline-row" key={baseline.id}>
+                  <div className="baseline-image">
+                    <img
+                      src={artifact(baseline.id, 'baseline')}
+                      alt={`Accepted image for ${baseline.name}`}
+                    />
+                  </div>
+                  <div className="baseline-details">
+                    <h2>{baseline.name}</h2>
+                    <p title={baseline.sourceUrl}>{baseline.sourceUrl}</p>
+                    <div>
+                      <code>
+                        {baseline.viewport.width} × {baseline.viewport.height}
+                      </code>
+                      <span>{new Date(baseline.createdAt).toLocaleString()}</span>
+                    </div>
+                    <p className="baseline-id">Reference {baseline.id.slice(0, 8)}</p>
+                    <button className="secondary-button" onClick={() => useBaseline(baseline)}>
+                      Use this baseline
+                      <ArrowRight size={14} />
+                    </button>
+                  </div>
+                </article>
+              ))
+            ) : (
+              <section className="empty-panel">
+                <h2>No saved baselines</h2>
+                <p>
+                  Accept a completed candidate to save a fixed reference for future comparisons.
+                </p>
+                <button className="secondary-button" onClick={newComparison}>
+                  New comparison
+                </button>
+              </section>
+            )}
+          </div>
+        ) : null}
+        {page === 'guide' ? (
+          <div className="guide-panel">
+            <section>
+              <h2>Capture environment</h2>
+              <p>
+                HTTP(S) pages open in isolated Chromium contexts. Captures use device scale 1, light
+                mode, locale en-US, and time zone UTC. Fonts and images receive bounded readiness
+                waits. Animations and transitions are disabled. Screenshots cover the selected
+                viewport.
+              </p>
+              <h2>Comparison thresholds</h2>
+              <p>
+                Pixelmatch uses a fixed 0.1 perceptual sensitivity and ignores detected antialiasing
+                edges. Allowed change is the percentage of changed pixels permitted before a run
+                fails. The decision uses the unrounded percentage.
+              </p>
+              <h2>Baselines</h2>
+              <p>
+                Accept candidate saves an immutable PNG reference. The original report stays intact.
+                Future captures against that reference use its dimensions.
+              </p>
+            </section>
+            <section>
+              <h2>Local development</h2>
+              <p>
+                Prism binds to loopback. URLs can reach local services: capture trusted pages only.
+                Public hosting requires authentication, destination restrictions, network isolation,
+                quotas, and private artifact storage.
+              </p>
+              <h2>Reproducible input</h2>
+              <p>
+                Dynamic timestamps, random content, slow widgets, and platform fonts can change
+                screenshots. Use deterministic fixtures and identical capture environments.
+              </p>
+              <pre>
+                npm ci{'\n'}npx playwright install chromium{'\n'}npm run dev
+              </pre>
+              <p>
+                History and PNGs live in <code>.prism/</code>. Stop the server before backing up or
+                deleting this directory.
+              </p>
+            </section>
+          </div>
+        ) : null}
       </main>
-    </div>
-  );
-}
-function Summary({
-  label,
-  value,
-  icon,
-  accent = '',
-}: {
-  label: string;
-  value: number;
-  icon: React.ReactNode;
-  accent?: string;
-}) {
-  return (
-    <div className="summary-card">
-      <div className={`summary-icon ${accent}`}>{icon}</div>
-      <div>
-        <span>{label}</span>
-        <strong>{value.toString().padStart(2, '0')}</strong>
-      </div>
     </div>
   );
 }

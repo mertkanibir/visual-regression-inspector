@@ -1,6 +1,66 @@
+/** Deterministic admin fixture; the candidate changes only CSS, never its data. */
 export function demoPage(variant = 'baseline') {
   const candidate = variant === 'candidate';
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Orbit — Demo ${variant}</title><style>
-  *{box-sizing:border-box}body{margin:0;background:#f5f4ef;color:#24372e;font:16px Arial,sans-serif}.wrap{max-width:1080px;margin:auto;padding:0 48px}nav{height:88px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #dcded4}.brand{font-weight:800;font-size:25px;letter-spacing:-1px}nav span{font-size:13px;color:#687469}main{display:grid;grid-template-columns:1.3fr 1fr;gap:48px;padding-top:65px}.tag{color:#547654;letter-spacing:2px;font-size:11px;font-weight:700;text-transform:uppercase}h1{font-size:${candidate ? 58 : 52}px;line-height:1.06;letter-spacing:-3px;margin:24px 0}p{font-size:16px;line-height:1.7;color:#6d796f;max-width:380px}.button{display:inline-block;padding:15px 23px;background:${candidate ? '#cb6845' : '#365c43'};color:white;border-radius:${candidate ? 20 : 6}px;margin-top:14px;font-size:13px;font-weight:700}.card{background:#e5eadc;border:1px solid #d3dcc9;border-radius:14px;padding:28px;height:315px;position:relative}.cardhead{font-size:12px;color:#6a7c60}.balance{font-size:38px;letter-spacing:-2px;margin:15px 0}.graph{height:120px;display:flex;gap:9px;align-items:end}.bar{background:#829e68;flex:1;border-radius:5px 5px 0 0}.dots{display:flex;gap:8px;margin-top:22px}.dots i{height:8px;width:8px;border-radius:100%;background:#829e68}.note{position:absolute;bottom:-22px;right:-15px;background:white;padding:18px 22px;border-radius:9px;box-shadow:0 8px 28px #223c2910;font-size:12px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:25px;padding:58px 0 20px}.stat{border-top:1px solid #d8ddcf;padding-top:23px}.stat strong{display:block;font-size:25px;font-weight:500;margin-bottom:7px}.stat span{font-size:11px;color:#7a8577}@media(max-width:700px){.wrap{padding:0 24px}main{grid-template-columns:1fr;padding-top:38px;gap:30px}h1{font-size:42px}.card{height:250px}.graph{height:80px}.stats{padding-top:40px}nav span{display:none}}
-  </style></head><body><div class="wrap"><nav><div class="brand">◉ orbit</div><span>Built for a calmer financial life</span><div style="font-size:12px">Your account ↗</div></nav><main><section><div class="tag">A little clarity. Every day.</div><h1>Make room for<br>what matters.</h1><p>A simple home for your finances. Spend less time managing money and more time living your life.</p><div class="button">${candidate ? 'Start your journey →' : 'Find your balance →'}</div></section><section class="card"><div class="cardhead">YOUR MONTH AT A GLANCE</div><div class="balance">$8,240<span style="font-size:13px;letter-spacing:0;color:#648853;margin-left:15px">↗ 12.8%</span></div><div class="graph">${[35, 50, 43, 72, 62, 88, candidate ? 70 : 100].map((value) => `<div class="bar" style="height:${value}%"></div>`).join('')}</div><div class="dots"><i></i><span style="font-size:11px">Your savings are growing</span></div><div class="note">✦ A good month, by any measure.</div></section></main><div class="stats"><div class="stat"><strong>One clear view</strong><span>EVERY ACCOUNT, TOGETHER</span></div><div class="stat"><strong>Less busywork</strong><span>AUTOMATICALLY ORGANIZED</span></div><div class="stat"><strong>Your next step</strong><span>INSIGHTS THAT MAKE SENSE</span></div></div></div></body></html>`;
+  const builds = [
+    ['#1048', 'a12f4c8', '41s', 'Passed'],
+    ['#1047', '83d091e', '39s', 'Passed'],
+    ['#1046', 'f320bc4', '42s', 'Passed'],
+    ['#1045', '18ba47d', '37s', 'Passed'],
+  ];
+  return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Project settings — Prism demo ${variant}</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; color: #26313d; background: #f5f6f8; font: 14px Arial, sans-serif; }
+    header { height: 52px; display: flex; align-items: center; justify-content: space-between; padding: 0 30px; background: #e9edf2; border-bottom: 1px solid #bdc6d2; }
+    .project { font: 13px monospace; font-weight: 600; }
+    .fixture { color: #657287; font-size: 12px; }
+    main { max-width: 1150px; padding: 24px 30px; margin: auto; }
+    .page-title { display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; }
+    h1 { font-size: 22px; font-weight: 600; margin: 0; }
+    .environment { font: 12px monospace; color: #58677b; }
+    nav { display: flex; gap: 26px; border-bottom: 1px solid #bac4d2; margin-bottom: 22px; font-size: 13px; }
+    nav span { padding: 0 0 12px; color: #657289; }
+    nav .active { color: #164a91; border-bottom: 2px solid #225db7; }
+    section { background: #fff; border: 1px solid #c5cdd8; border-radius: 3px; margin-bottom: 22px; }
+    .section-heading { padding: 14px 16px; border-bottom: 1px solid #d3d9e2; background: #fafbfc; font-weight: 600; }
+    .setting-row { display: grid; grid-template-columns: ${candidate ? 300 : 240}px 1fr; gap: 22px; align-items: center; padding: 17px 16px; border-bottom: 1px solid #e0e5ec; }
+    .setting-row strong { display: block; font-size: 13px; font-weight: 500; }
+    .setting-row small { display: block; color: #718097; font-size: 11px; margin-top: 6px; }
+    .input { padding: 9px 11px; font: 12px monospace; border: 1px solid #acb8c9; border-radius: 3px; color: #374963; background: #fff; }
+    .form-actions { padding: 13px 16px; display: flex; justify-content: end; }
+    .button { display: inline-block; padding: ${candidate ? '10px 22px' : '8px 13px'}; font-size: 12px; background: ${candidate ? '#386bc0' : '#225db7'}; border: 1px solid #1b509e; border-radius: ${candidate ? 8 : 3}px; color: white; }
+    .build-title { display: flex; align-items: center; justify-content: space-between; }
+    .build-title span { font: 11px monospace; color: #6c7b90; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    th { text-align: left; color: #6d798c; padding: 9px 16px; background: #f3f5f8; font-size: 11px; font-weight: 500; border-bottom: 1px solid #ccd5e0; }
+    td { padding: ${candidate ? 13 : 9}px 16px; border-bottom: 1px solid #e0e5ec; font-family: monospace; }
+    tr:last-child td { border-bottom: 0; }
+    .passed { display: inline-block; color: #246745; background: #f1f8f3; border: 1px solid #b8d2c1; border-radius: 3px; padding: 3px 6px; font: 11px Arial, sans-serif; }
+    @media(max-width:700px) { header { padding: 0 18px; } main { padding: 20px 18px; } .fixture { display: none; } h1 { font-size: 19px; } .setting-row { grid-template-columns: ${candidate ? 175 : 145}px 1fr; gap: 12px; } .input { font-size: 10px; } nav { gap: 18px; } th,td { padding-left: 12px; padding-right: 12px; } }
+  </style>
+</head>
+<body>
+  <header><span class="project">sample-project / build</span><span class="fixture">Prism demo fixture</span></header>
+  <main>
+    <div class="page-title"><h1>Project settings</h1><span class="environment">production</span></div>
+    <nav><span>Overview</span><span>Builds</span><span class="active">Settings</span><span>Environment</span></nav>
+    <section>
+      <div class="section-heading">Build configuration</div>
+      <div class="setting-row"><div><strong>Framework</strong><small>Detected from package.json</small></div><div class="input">Vite</div></div>
+      <div class="setting-row"><div><strong>Build command</strong><small>Runs after dependency installation</small></div><div class="input">npm run build</div></div>
+      <div class="setting-row"><div><strong>Output directory</strong><small>Static files served after a build</small></div><div class="input">dist</div></div>
+      <div class="form-actions"><span class="button">Save changes</span></div>
+    </section>
+    <section>
+      <div class="section-heading build-title">Latest builds<span>Branch: main</span></div>
+      <table><thead><tr><th>Run</th><th>Commit</th><th>Duration</th><th>Status</th></tr></thead><tbody>${builds.map(([run, commit, duration, status]) => `<tr><td>${run}</td><td>${commit}</td><td>${duration}</td><td><span class="passed">${status}</span></td></tr>`).join('')}</tbody></table>
+    </section>
+  </main>
+</body>
+</html>`;
 }

@@ -6,9 +6,9 @@ A local developer tool that turns two web pages into reviewable evidence of a vi
 
 ## Why I built it
 
-A page can render successfully and still ship a broken layout. A heading grows, a button changes shape, or a chart moves after a CSS update. Functional tests often pass while those changes go unnoticed.
+A page can render successfully and still ship a broken layout. A settings form shifts, a button changes shape, or table rows move after a CSS update. Functional tests often pass while those changes go unnoticed.
 
-Prism makes that problem easy to reproduce: point it at a baseline and candidate, capture them in the same environment, and inspect the measured difference. The included Orbit demo intentionally changes its heading, button, and chart, so the complete workflow works without a separate application or external account.
+Prism makes that problem easy to reproduce: point it at a baseline and candidate, capture them in the same environment, and inspect the measured difference. The included project-settings demo changes form alignment, button styling, and build-row spacing while keeping the data identical, so the complete workflow works without a separate application or external account.
 
 ## Run locally
 
@@ -64,7 +64,7 @@ flowchart LR
   Baseline --> Files
 ```
 
-The backend is ordinary Node ESM; the frontend is TypeScript. React handles the review experience, Vite builds the frontend, and Express serves both the API and built assets. Playwright and image comparison stay on the server. Fonts are bundled locally.
+The backend is ordinary Node ESM; the frontend is TypeScript. React handles the review experience, Vite builds the frontend, and Express serves both the API and built assets. Playwright and image comparison stay on the server. The workbench uses system fonts; capture rendering stays within Chromium.
 
 `server/capture.mjs` controls the browser environment. `server/compare.mjs` decodes and compares PNGs. `server/store.mjs` serializes state writes through a temporary file and atomic rename. `server/index.mjs` owns admission, workers, artifact routes, and baseline acceptance. UI components live in `src/`.
 
@@ -101,7 +101,7 @@ The tests use actual Chromium; they do not mock a screenshot result.
 | Recovery and validation | Interrupted jobs become errors; a real transient rename failure rejects its caller and later queued writes recover in order; invalid protocols, credentials, PNGs, and cross-site writes are rejected |
 | Browser story | Run demo, inspect all four views, accept baseline, rerun to zero changes, upload matching PNGs, browse history, and check a 390 px viewport without horizontal overflow or page errors |
 
-The included 1280 × 800 demo measured **25,727 changed pixels out of 1,024,000 (2.512%)** in the local browser walkthrough. Comparing its candidate to the accepted snapshot measured **0 changed pixels**. These are fixture results, not a throughput benchmark or a promise of identical percentages across operating systems. `docs/` contains the actual captured baseline, candidate, difference, desktop workspace, and mobile workspace PNGs.
+The included 1280 × 800 demo measured **24,000 changed pixels out of 1,024,000 (2.344%)** in the local browser walkthrough. Comparing its candidate to the accepted snapshot measured **0 changed pixels**. These are fixture results, not a throughput benchmark or a promise of identical percentages across operating systems. `docs/` contains the actual captured baseline, candidate, difference, desktop workspace, and mobile workspace PNGs.
 
 CI repeats tests, build, and the browser story on Node 24 / Ubuntu, then uploads the PNG evidence.
 

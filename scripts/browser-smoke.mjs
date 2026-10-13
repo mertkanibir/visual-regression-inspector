@@ -15,7 +15,7 @@ const errors = [];
 page.on('pageerror', (error) => errors.push(error.message));
 try {
   await page.goto(base);
-  await page.getByRole('heading', { name: 'Small changes. Full clarity.' }).waitFor();
+  await page.getByRole('heading', { name: 'Visual comparisons' }).waitFor();
   await page.getByRole('button', { name: 'Run comparison', exact: true }).click();
   await page
     .locator('.review-heading .status-pill')

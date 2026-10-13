@@ -16,8 +16,6 @@
     "check": "npm run test && npm run build && npm run test:browser"
   },
   "dependencies": {
-    "@fontsource/dm-sans": "^5.3.0",
-    "@fontsource/manrope": "^5.3.0",
     "express": "^5.3.0",
     "lucide-react": "^1.55.0",
     "pixelmatch": "^8.0.0",

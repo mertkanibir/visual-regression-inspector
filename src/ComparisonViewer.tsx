@@ -33,11 +33,10 @@ export default function ComparisonViewer({ job, onAccept, accepting }: Props) {
     <section className="review-panel" aria-label="Visual comparison report" data-job-id={job.id}>
       <div className="review-heading">
         <div>
-          <span className="step-label">02 / INSPECT</span>
           <h2>{job.name}</h2>
           <p>
             {job.viewport.width} × {job.viewport.height} ·{' '}
-            {job.mode === 'upload' ? 'Uploaded PNGs' : 'Chromium'} ·{' '}
+            {job.mode === 'upload' ? 'Uploaded PNGs' : 'Chromium'} · {job.id.slice(0, 8)} ·{' '}
             {new Date(job.createdAt).toLocaleString(undefined, {
               month: 'short',
               day: 'numeric',
@@ -51,36 +50,36 @@ export default function ComparisonViewer({ job, onAccept, accepting }: Props) {
           {result.passed ? 'Within tolerance' : 'Changes detected'}
         </span>
       </div>
-      <div className="report-metrics">
+      <dl className="report-metrics">
         <div>
-          <span>Changed pixels</span>
-          <strong className={result.passed ? 'green-text' : 'red-text'}>
+          <dt>Changed</dt>
+          <dd className={result.passed ? 'green-text' : 'red-text'}>
             {result.changedPercent.toFixed(3)}
             <small>%</small>
-          </strong>
+          </dd>
         </div>
         <div>
-          <span>Pixels affected</span>
-          <strong>
+          <dt>Pixels</dt>
+          <dd>
             {result.changedPixels.toLocaleString()}
             <small> / {result.totalPixels.toLocaleString()}</small>
-          </strong>
+          </dd>
         </div>
         <div>
-          <span>Allowed change</span>
-          <strong>
+          <dt>Allowed</dt>
+          <dd>
             {job.allowedPercent}
             <small>%</small>
-          </strong>
+          </dd>
         </div>
         <div>
-          <span>{job.mode === 'upload' ? 'PNG comparison' : 'Capture + compare'}</span>
-          <strong>
+          <dt>{job.mode === 'upload' ? 'Compare time' : 'Capture + compare'}</dt>
+          <dd>
             {((job.durationMs || 0) / 1000).toFixed(1)}
             <small>s</small>
-          </strong>
+          </dd>
         </div>
-      </div>
+      </dl>
       <div className="viewer-toolbar">
         <div
           className="view-tabs"

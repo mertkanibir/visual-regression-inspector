@@ -31,7 +31,7 @@ async function encode(file: File | null) {
 }
 export default function RunForm({ baselines, initialBaseline, onCreated, onClose }: Props) {
   const [mode, setMode] = useState<'url' | 'upload'>('url');
-  const [name, setName] = useState('Orbit · homepage');
+  const [name, setName] = useState('Project settings · desktop');
   const [baselineUrl, setBaselineUrl] = useState(`${DEMO_ORIGIN}/demo/baseline`);
   const [candidateUrl, setCandidateUrl] = useState(`${DEMO_ORIGIN}/demo/candidate`);
   const [baselineId, setBaselineId] = useState(initialBaseline);
@@ -87,7 +87,7 @@ export default function RunForm({ baselines, initialBaseline, onCreated, onClose
   function demo() {
     setMode('url');
     setBaselineId('');
-    setName('Orbit · homepage');
+    setName('Project settings · desktop');
     setBaselineUrl(`${DEMO_ORIGIN}/demo/baseline`);
     setCandidateUrl(`${DEMO_ORIGIN}/demo/candidate`);
     choosePreset('desktop');
@@ -96,8 +96,7 @@ export default function RunForm({ baselines, initialBaseline, onCreated, onClose
     <section className="run-panel" aria-labelledby="run-heading">
       <div className="panel-title">
         <div>
-          <span className="step-label">01 / SET UP</span>
-          <h2 id="run-heading">New comparison</h2>
+          <h2 id="run-heading">Capture settings</h2>
         </div>
         <button className="icon-button" onClick={onClose} aria-label="Close new comparison">
           <X size={19} />
@@ -105,6 +104,17 @@ export default function RunForm({ baselines, initialBaseline, onCreated, onClose
       </div>
       <form onSubmit={submit}>
         <div className="form-top">
+          <label className="field name-field">
+            Comparison name
+            <input
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              maxLength={80}
+              required
+              placeholder="Checkout · desktop"
+            />
+          </label>
+
           <div className="segmented" aria-label="Comparison source">
             <button
               type="button"
@@ -125,16 +135,6 @@ export default function RunForm({ baselines, initialBaseline, onCreated, onClose
             <FlaskConical size={15} /> Load demo
           </button>
         </div>
-        <label className="field name-field">
-          Comparison name
-          <input
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            maxLength={80}
-            required
-            placeholder="Checkout · desktop"
-          />
-        </label>
         {mode === 'url' ? (
           <>
             {baselines.length > 0 ? (
@@ -190,7 +190,6 @@ export default function RunForm({ baselines, initialBaseline, onCreated, onClose
         ) : (
           <div className="upload-fields">
             <label className="upload-zone">
-              <ImagePlus size={24} />
               <strong>Baseline PNG</strong>
               <span>{baselineFile?.name || 'Select an image · up to 5 MB'}</span>
               <input
@@ -201,7 +200,6 @@ export default function RunForm({ baselines, initialBaseline, onCreated, onClose
               />
             </label>
             <label className="upload-zone">
-              <ImagePlus size={24} />
               <strong>Candidate PNG</strong>
               <span>{candidateFile?.name || 'Select an image · up to 5 MB'}</span>
               <input
@@ -296,8 +294,8 @@ export default function RunForm({ baselines, initialBaseline, onCreated, onClose
           {saved
             ? 'A saved baseline stays fixed. The candidate is captured at the same dimensions.'
             : mode === 'url'
-              ? 'Real Chromium captures. Fixed viewport. Animations paused. No account required.'
-              : 'Pixel comparison runs on the server. Your original files stay unchanged.'}
+              ? 'Chromium · viewport capture · animations disabled'
+              : 'PNG comparison · matching dimensions · up to 5 MB per file'}
         </p>
       </form>
     </section>

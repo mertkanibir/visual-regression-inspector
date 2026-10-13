@@ -53,7 +53,7 @@ test(
     let instance = await setup();
     try {
       const input = {
-        name: 'Orbit API test',
+        name: 'Project settings API test',
         baselineUrl: `${instance.base}/demo/baseline`,
         candidateUrl: `${instance.base}/demo/candidate`,
         viewport: { width: 640, height: 480 },
