@@ -180,3 +180,28 @@ test('PNG upload produces a real comparison and interrupted jobs are recovered o
     await instance.stop();
   }
 });
+
+test('artifact delivery works from a hidden .prism data directory', async () => {
+  const directory = await mkdtemp(path.join(tmpdir(), 'prism-hidden-store-'));
+  const instance = await setup(2, path.join(directory, '.prism'));
+  try {
+    const png = smallPng();
+    const submitted = await post(instance.base, '/api/jobs', {
+      name: 'Hidden store artifact',
+      mode: 'upload',
+      baselinePng: png,
+      candidatePng: png,
+    });
+    const job = await finished(instance.base, submitted.body.id);
+    assert.equal(job.status, 'complete', job.error);
+    for (const name of ['baseline', 'candidate', 'diff']) {
+      const response = await fetch(`${instance.base}/api/artifacts/${job.id}/${name}.png`);
+      assert.equal(response.status, 200, `${name} must be served from .prism`);
+      assert.match(response.headers.get('content-type'), /image\/png/);
+      assert.equal(PNG.sync.read(Buffer.from(await response.arrayBuffer())).width, 10);
+    }
+  } finally {
+    await instance.stop();
+    await rm(directory, { recursive: true, force: true });
+  }
+});

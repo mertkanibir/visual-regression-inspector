@@ -64,7 +64,7 @@ flowchart LR
   Baseline --> Files
 ```
 
-The backend is ordinary Node ESM; the frontend is TypeScript. React handles the review experience, Vite builds the frontend, and Express serves both the API and built assets. Playwright and image comparison stay on the server. The workbench uses system fonts; capture rendering stays within Chromium.
+The backend is ordinary Node ESM; the frontend is TypeScript. React handles the review experience, Vite builds the frontend, and Express serves both the API and built assets. Playwright and image comparison stay on the server. The workbench and demo use locally bundled Manrope fonts; capture rendering stays within Chromium. The font is licensed under the [SIL Open Font License](public/fonts/Manrope-OFL.txt).
 
 `server/capture.mjs` controls the browser environment. `server/compare.mjs` decodes and compares PNGs. `server/store.mjs` serializes state writes through a temporary file and atomic rename. `server/index.mjs` owns admission, workers, artifact routes, and baseline acceptance. UI components live in `src/`.
 
@@ -101,9 +101,11 @@ The tests use actual Chromium; they do not mock a screenshot result.
 | Recovery and validation | Interrupted jobs become errors; a real transient rename failure rejects its caller and later queued writes recover in order; invalid protocols, credentials, PNGs, and cross-site writes are rejected |
 | Browser story | Run demo, inspect all four views, accept baseline, rerun to zero changes, upload matching PNGs, browse history, and check a 390 px viewport without horizontal overflow or page errors |
 
-The included 1280 × 800 demo measured **24,000 changed pixels out of 1,024,000 (2.344%)** in the local browser walkthrough. Comparing its candidate to the accepted snapshot measured **0 changed pixels**. These are fixture results, not a throughput benchmark or a promise of identical percentages across operating systems. `docs/` contains the actual captured baseline, candidate, difference, desktop workspace, and mobile workspace PNGs.
+The included 1280 × 800 demo measured **13,429 changed pixels out of 1,024,000 (1.311%)** in the local browser walkthrough. Comparing its candidate to the accepted snapshot measured **0 changed pixels**. These are fixture results, not a throughput benchmark or a promise of identical percentages across operating systems. `docs/` contains the actual captured baseline, candidate, difference, desktop workspace, and mobile workspace PNGs.
 
 CI repeats tests, build, and the browser story on Node 24 / Ubuntu, then uploads the PNG evidence.
+
+The review interface uses a dark studio canvas with locally bundled typography. Form/result introductions and image-mode transitions run on real UI state changes; API polling does not replay them. A running capture uses an indeterminate indicator, with no fabricated completion percentage. All motion respects `prefers-reduced-motion`. To record the existing browser workflow as a short local demonstration, run `PRISM_RECORD_VIDEO=1 npm run test:browser`; it saves `docs/motion-demo.webm`.
 
 ## Decisions and tradeoffs
 

@@ -180,12 +180,10 @@ export async function createApplication({
       const baseline = store.state.baselines.find((item) => item.id === input.baselineId);
       if (!baseline) return res.status(400).json({ error: 'Saved baseline not found.' });
       if (!viewportSchema.safeParse(baseline.viewport).success)
-        return res
-          .status(400)
-          .json({
-            error:
-              'This saved image is outside URL viewport limits (320–1920 × 240–1200). Compare PNGs with matching dimensions instead.',
-          });
+        return res.status(400).json({
+          error:
+            'This saved image is outside URL viewport limits (320–1920 × 240–1200). Compare PNGs with matching dimensions instead.',
+        });
       input.viewport = baseline.viewport;
       input.baselineUrl = baseline.sourceUrl;
     }
@@ -249,8 +247,11 @@ export async function createApplication({
     if (!record || !['baseline.png', 'candidate.png', 'diff.png'].includes(req.params.name))
       return res.status(404).json({ error: 'Artifact not found.' });
     res.set('Cache-Control', 'private, max-age=31536000, immutable');
-    return res.sendFile(path.join(dataDir, 'artifacts', req.params.id, req.params.name));
+    return res.sendFile(path.resolve(dataDir, 'artifacts', req.params.id, req.params.name), {
+      dotfiles: 'allow',
+    });
   });
+  app.use('/fonts', express.static(path.join(ROOT, 'public', 'fonts')));
   app.get('/demo/:variant', (req, res) => {
     if (!['baseline', 'candidate'].includes(req.params.variant))
       return res.status(404).send('Demo not found');
@@ -265,16 +266,14 @@ export async function createApplication({
     console.error('[prism]', error.message);
     const status =
       error.type === 'entity.too.large' ? 413 : error instanceof SyntaxError ? 400 : 500;
-    res
-      .status(status)
-      .json({
-        error:
-          status === 413
-            ? 'Upload exceeds the request size limit.'
-            : status === 400
-              ? 'Invalid JSON request.'
-              : 'The server could not complete this request.',
-      });
+    res.status(status).json({
+      error:
+        status === 413
+          ? 'Upload exceeds the request size limit.'
+          : status === 400
+            ? 'Invalid JSON request.'
+            : 'The server could not complete this request.',
+    });
   });
   return {
     app,

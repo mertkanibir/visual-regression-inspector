@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import {
   Plus,
+  Aperture,
+  Columns2,
+  CircleHelp,
+  ScanLine,
+  Clock3,
   Layers3,
   History,
   Bookmark,
@@ -122,14 +127,19 @@ export default function App() {
             setPage('workspace');
           }}
         >
-          Prism
+          <span className="brand-icon">
+            <Aperture size={24} strokeWidth={1.8} />
+          </span>
+          <span>
+            prism<small>visual review</small>
+          </span>
         </a>
         <nav aria-label="Main navigation">
           {[
-            { id: 'workspace', name: 'Compare', label: 'Compare' },
-            { id: 'history', name: 'Runs', label: 'Run history' },
-            { id: 'baselines', name: 'Baselines', label: 'Baselines' },
-            { id: 'guide', name: 'Help', label: 'Help' },
+            { id: 'workspace', name: 'Compare', label: 'Compare', icon: Columns2 },
+            { id: 'history', name: 'Runs', label: 'Run history', icon: History },
+            { id: 'baselines', name: 'Baselines', label: 'Baselines', icon: Bookmark },
+            { id: 'guide', name: 'Help', label: 'Help', icon: CircleHelp },
           ].map((item) => (
             <button
               key={item.id}
@@ -138,7 +148,8 @@ export default function App() {
               className={page === item.id ? 'nav-active' : ''}
               onClick={() => setPage(item.id as Page)}
             >
-              {item.name}
+              <item.icon size={16} />
+              <span>{item.name}</span>
               {item.id === 'history' ? (
                 <span className="nav-count">{jobs.length}</span>
               ) : item.id === 'baselines' ? (
@@ -161,9 +172,20 @@ export default function App() {
           <ArrowUpRight size={13} />
         </a>
       </header>
-      <main className="main-content">
+      <main className="main-content" key={page}>
         <div className="page-heading">
-          <h1>{pageTitle}</h1>
+          <div>
+            <h1>{pageTitle}</h1>
+            <p>
+              {page === 'workspace'
+                ? 'Review browser captures and PNG differences.'
+                : page === 'history'
+                  ? 'Every comparison and its original artifacts.'
+                  : page === 'baselines'
+                    ? 'Accepted references for your next comparison.'
+                    : 'Capture settings, thresholds, and local storage.'}
+            </p>
+          </div>
           <button className="primary-button" onClick={newComparison}>
             <Plus size={15} />
             New comparison
@@ -203,7 +225,13 @@ export default function App() {
                 accepting={accepting}
               />
             ) : selected?.status === 'running' || selected?.status === 'queued' ? (
-              <section className="progress-panel" role="status">
+              <section
+                className={`progress-panel ${selected.status === 'running' ? 'running' : ''}`}
+                role="status"
+              >
+                <div className="progress-indicator">
+                  {selected.status === 'queued' ? <Clock3 size={27} /> : <ScanLine size={27} />}
+                </div>
                 <h2>
                   {selected.status === 'queued'
                     ? 'Comparison queued'

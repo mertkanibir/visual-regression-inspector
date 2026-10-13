@@ -33,6 +33,7 @@ export default function ComparisonViewer({ job, onAccept, accepting }: Props) {
     <section className="review-panel" aria-label="Visual comparison report" data-job-id={job.id}>
       <div className="review-heading">
         <div>
+          <span className="report-label">COMPARISON REPORT</span>
           <h2>{job.name}</h2>
           <p>
             {job.viewport.width} × {job.viewport.height} ·{' '}
@@ -130,6 +131,7 @@ export default function ComparisonViewer({ job, onAccept, accepting }: Props) {
         </label>
       </div>
       <div
+        key={view}
         className={`image-workbench ${view} ${zoom === '100' ? 'actual-size' : ''}`}
         id="image-view"
         role="tabpanel"
