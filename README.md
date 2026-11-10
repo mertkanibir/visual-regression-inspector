@@ -1,4 +1,19 @@
-# Prism — Visual Regression Inspector
+<h1 align="center">Prism</h1>
+
+<p align="center">Visual regression analysis with real browser captures, pixel diffs, and immutable baselines.</p>
+
+<p align="center">
+  <a href="https://react.dev/"><img src="https://img.shields.io/badge/React-149ECA?style=plastic&logo=react&logoColor=white" alt="React" /></a>
+  <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-3178C6?style=plastic&logo=typescript&logoColor=white" alt="TypeScript" /></a>
+  <a href="https://vite.dev/"><img src="https://img.shields.io/badge/Vite-646CFF?style=plastic&logo=vite&logoColor=white" alt="Vite" /></a>
+</p>
+
+<p align="center">
+  <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/Node.js%2024-339933?style=plastic&logo=nodedotjs&logoColor=white" alt="Node.js 24" /></a>
+  <a href="https://expressjs.com/"><img src="https://img.shields.io/badge/Express-000000?style=plastic&logo=express&logoColor=white" alt="Express" /></a>
+  <a href="https://playwright.dev/"><img src="https://img.shields.io/badge/Playwright-2EAD33?style=plastic" alt="Playwright" /></a>
+  <a href="https://github.com/mapbox/pixelmatch"><img src="https://img.shields.io/badge/Pixelmatch-D63384?style=plastic" alt="Pixelmatch" /></a>
+</p>
 
 A local developer tool that turns two web pages into reviewable evidence of a visual regression. Prism captures real Chromium screenshots, compares pixels, and keeps the report and images together so a change can be inspected and accepted deliberately.
 
