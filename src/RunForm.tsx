@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useState, type FormEvent } from "react";
 import {
   ArrowRight,
   ChevronDown,
@@ -8,8 +8,8 @@ import {
   Smartphone,
   FlaskConical,
   X,
-} from 'lucide-react';
-import { api, type Baseline, type Job } from './types';
+} from "lucide-react";
+import { api, type Baseline, type Job } from "./types";
 
 interface Props {
   baselines: Baseline[];
@@ -18,39 +18,50 @@ interface Props {
   onClose: () => void;
 }
 const DEMO_ORIGIN =
-  window.location.port === '5174' ? 'http://127.0.0.1:4174' : window.location.origin;
+  window.location.port === "5174"
+    ? "http://127.0.0.1:4174"
+    : window.location.origin;
 async function encode(file: File | null) {
-  if (!file) throw new Error('Choose both PNG files.');
-  if (file.size > 5_000_000) throw new Error('Each PNG must be 5 MB or less.');
+  if (!file) throw new Error("Choose both PNG files.");
+  if (file.size > 5_000_000) throw new Error("Each PNG must be 5 MB or less.");
   return new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result).split(',')[1]);
-    reader.onerror = () => reject(new Error('Could not read the file.'));
+    reader.onload = () => resolve(String(reader.result).split(",")[1]);
+    reader.onerror = () => reject(new Error("Could not read the file."));
     reader.readAsDataURL(file);
   });
 }
-export default function RunForm({ baselines, initialBaseline, onCreated, onClose }: Props) {
-  const [mode, setMode] = useState<'url' | 'upload'>('url');
-  const [name, setName] = useState('Project settings · desktop');
-  const [baselineUrl, setBaselineUrl] = useState(`${DEMO_ORIGIN}/demo/baseline`);
-  const [candidateUrl, setCandidateUrl] = useState(`${DEMO_ORIGIN}/demo/candidate`);
+export default function RunForm({
+  baselines,
+  initialBaseline,
+  onCreated,
+  onClose,
+}: Props) {
+  const [mode, setMode] = useState<"url" | "upload">("url");
+  const [name, setName] = useState("Project settings · desktop");
+  const [baselineUrl, setBaselineUrl] = useState(
+    `${DEMO_ORIGIN}/demo/baseline`,
+  );
+  const [candidateUrl, setCandidateUrl] = useState(
+    `${DEMO_ORIGIN}/demo/candidate`,
+  );
   const [baselineId, setBaselineId] = useState(initialBaseline);
-  const [preset, setPreset] = useState('desktop');
+  const [preset, setPreset] = useState("desktop");
   const [width, setWidth] = useState(1280);
   const [height, setHeight] = useState(800);
   const [allowedPercent, setAllowedPercent] = useState(0.5);
   const [baselineFile, setBaselineFile] = useState<File | null>(null);
   const [candidateFile, setCandidateFile] = useState<File | null>(null);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
   const saved = baselines.find((item) => item.id === baselineId);
   async function submit(event: FormEvent) {
     event.preventDefault();
-    setError('');
+    setError("");
     setPending(true);
     try {
       const body =
-        mode === 'url'
+        mode === "url"
           ? {
               name,
               mode,
@@ -66,31 +77,33 @@ export default function RunForm({ baselines, initialBaseline, onCreated, onClose
               candidatePng: await encode(candidateFile),
               allowedPercent,
             };
-      onCreated(await api<Job>('/api/jobs', body));
+      onCreated(await api<Job>("/api/jobs", body));
     } catch (issue) {
-      setError(issue instanceof Error ? issue.message : 'Could not start comparison.');
+      setError(
+        issue instanceof Error ? issue.message : "Could not start comparison.",
+      );
     } finally {
       setPending(false);
     }
   }
   function choosePreset(value: string) {
     setPreset(value);
-    if (value === 'desktop') {
+    if (value === "desktop") {
       setWidth(1280);
       setHeight(800);
     }
-    if (value === 'mobile') {
+    if (value === "mobile") {
       setWidth(390);
       setHeight(844);
     }
   }
   function demo() {
-    setMode('url');
-    setBaselineId('');
-    setName('Project settings · desktop');
+    setMode("url");
+    setBaselineId("");
+    setName("Project settings · desktop");
     setBaselineUrl(`${DEMO_ORIGIN}/demo/baseline`);
     setCandidateUrl(`${DEMO_ORIGIN}/demo/candidate`);
-    choosePreset('desktop');
+    choosePreset("desktop");
   }
   return (
     <section className="run-panel" aria-labelledby="run-heading">
@@ -98,7 +111,11 @@ export default function RunForm({ baselines, initialBaseline, onCreated, onClose
         <div>
           <h2 id="run-heading">Capture settings</h2>
         </div>
-        <button className="icon-button" onClick={onClose} aria-label="Close new comparison">
+        <button
+          className="icon-button"
+          onClick={onClose}
+          aria-label="Close new comparison"
+        >
           <X size={19} />
         </button>
       </div>
@@ -118,15 +135,17 @@ export default function RunForm({ baselines, initialBaseline, onCreated, onClose
           <div className="segmented" aria-label="Comparison source">
             <button
               type="button"
-              className={mode === 'url' ? 'active' : ''}
-              onClick={() => setMode('url')}
+              className={mode === "url" ? "active" : ""}
+              aria-pressed={mode === "url"}
+              onClick={() => setMode("url")}
             >
               <Globe2 size={15} /> Web pages
             </button>
             <button
               type="button"
-              className={mode === 'upload' ? 'active' : ''}
-              onClick={() => setMode('upload')}
+              className={mode === "upload" ? "active" : ""}
+              aria-pressed={mode === "upload"}
+              onClick={() => setMode("upload")}
             >
               <ImagePlus size={15} /> PNG files
             </button>
@@ -135,7 +154,7 @@ export default function RunForm({ baselines, initialBaseline, onCreated, onClose
             <FlaskConical size={15} /> Load demo
           </button>
         </div>
-        {mode === 'url' ? (
+        {mode === "url" ? (
           <>
             {baselines.length > 0 ? (
               <label className="field">
@@ -160,10 +179,10 @@ export default function RunForm({ baselines, initialBaseline, onCreated, onClose
               <label className="field">
                 <span>
                   <i className="source-dot baseline-dot" />
-                  Baseline {saved ? 'snapshot' : 'URL'}
+                  Baseline {saved ? "snapshot" : "URL"}
                 </span>
                 <input
-                  type={saved ? 'text' : 'url'}
+                  type={saved ? "text" : "url"}
                   required
                   value={saved ? saved.sourceUrl : baselineUrl}
                   readOnly={Boolean(saved)}
@@ -191,33 +210,41 @@ export default function RunForm({ baselines, initialBaseline, onCreated, onClose
           <div className="upload-fields">
             <label className="upload-zone">
               <strong>Baseline PNG</strong>
-              <span>{baselineFile?.name || 'Select an image · up to 5 MB'}</span>
+              <span>
+                {baselineFile?.name || "Select an image · up to 5 MB"}
+              </span>
               <input
                 type="file"
                 accept="image/png,.png"
                 required
-                onChange={(event) => setBaselineFile(event.target.files?.[0] || null)}
+                onChange={(event) =>
+                  setBaselineFile(event.target.files?.[0] || null)
+                }
               />
             </label>
             <label className="upload-zone">
               <strong>Candidate PNG</strong>
-              <span>{candidateFile?.name || 'Select an image · up to 5 MB'}</span>
+              <span>
+                {candidateFile?.name || "Select an image · up to 5 MB"}
+              </span>
               <input
                 type="file"
                 accept="image/png,.png"
                 required
-                onChange={(event) => setCandidateFile(event.target.files?.[0] || null)}
+                onChange={(event) =>
+                  setCandidateFile(event.target.files?.[0] || null)
+                }
               />
             </label>
           </div>
         )}
         <div className="options-row">
-          {mode === 'url' ? (
+          {mode === "url" ? (
             <label className="field viewport-field">
               Viewport
               <div className="select-wrap">
                 <select
-                  value={saved ? 'saved' : preset}
+                  value={saved ? "saved" : preset}
                   disabled={Boolean(saved)}
                   onChange={(event) => choosePreset(event.target.value)}
                 >
@@ -233,13 +260,19 @@ export default function RunForm({ baselines, initialBaseline, onCreated, onClose
                     </>
                   )}
                 </select>
-                {preset === 'mobile' ? <Smartphone size={16} /> : <Monitor size={16} />}
+                {preset === "mobile" ? (
+                  <Smartphone size={16} />
+                ) : (
+                  <Monitor size={16} />
+                )}
               </div>
             </label>
           ) : (
-            <p className="upload-limit">Matching dimensions · up to 3 million pixels</p>
+            <p className="upload-limit">
+              Matching dimensions · up to 3 million pixels
+            </p>
           )}
-          {mode === 'url' && preset === 'custom' && !saved ? (
+          {mode === "url" && preset === "custom" && !saved ? (
             <div className="custom-size">
               <label className="field">
                 Width
@@ -274,14 +307,20 @@ export default function RunForm({ baselines, initialBaseline, onCreated, onClose
                 max={100}
                 step="0.01"
                 value={allowedPercent}
-                onChange={(event) => setAllowedPercent(Number(event.target.value))}
+                onChange={(event) =>
+                  setAllowedPercent(Number(event.target.value))
+                }
                 required
               />
               <span>%</span>
             </div>
           </label>
-          <button className="primary-button run-button" disabled={pending} type="submit">
-            {pending ? 'Starting…' : 'Run comparison'}
+          <button
+            className="primary-button run-button"
+            disabled={pending}
+            type="submit"
+          >
+            {pending ? "Starting…" : "Run comparison"}
             <ArrowRight size={16} />
           </button>
         </div>
@@ -292,10 +331,10 @@ export default function RunForm({ baselines, initialBaseline, onCreated, onClose
         ) : null}
         <p className="form-hint">
           {saved
-            ? 'A saved baseline stays fixed. The candidate is captured at the same dimensions.'
-            : mode === 'url'
-              ? 'Chromium · viewport capture · animations disabled'
-              : 'PNG comparison · matching dimensions · up to 5 MB per file'}
+            ? "A saved baseline stays fixed. The candidate is captured at the same dimensions."
+            : mode === "url"
+              ? "Chromium · viewport capture · animations disabled"
+              : "PNG comparison · matching dimensions · up to 5 MB per file"}
         </p>
       </form>
     </section>

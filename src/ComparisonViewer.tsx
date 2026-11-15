@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from "react";
 import {
   Columns2,
   Blend,
@@ -8,95 +8,129 @@ import {
   Check,
   ArrowUpRight,
   ShieldCheck,
-} from 'lucide-react';
-import { artifact, type Job } from './types';
+} from "lucide-react";
+import { artifact, type Job } from "./types";
 interface Props {
   job: Job;
   onAccept: () => void;
   accepting: boolean;
 }
-type View = 'split' | 'diff' | 'overlay' | 'swipe';
+type View = "split" | "diff" | "overlay" | "swipe";
 export default function ComparisonViewer({ job, onAccept, accepting }: Props) {
-  const [view, setView] = useState<View>('split');
+  const [view, setView] = useState<View>("split");
   const [blend, setBlend] = useState(50);
-  const [zoom, setZoom] = useState('fit');
+  const [zoom, setZoom] = useState("fit");
   const result = job.result!;
   const options = [
-    { id: 'split', label: 'Side by side', icon: Columns2 },
-    { id: 'diff', label: 'Difference', icon: Scan },
-    { id: 'overlay', label: 'Overlay', icon: Blend },
-    { id: 'swipe', label: 'Swipe', icon: SlidersHorizontal },
+    { id: "split", label: "Side by side", icon: Columns2 },
+    { id: "diff", label: "Difference", icon: Scan },
+    { id: "overlay", label: "Overlay", icon: Blend },
+    { id: "swipe", label: "Swipe", icon: SlidersHorizontal },
   ] as const;
-  const baselineImage = artifact(job.id, 'baseline');
-  const candidateImage = artifact(job.id, 'candidate');
+  const baselineImage = artifact(job.id, "baseline");
+  const candidateImage = artifact(job.id, "candidate");
   return (
-    <section className="review-panel" aria-label="Visual comparison report" data-job-id={job.id}>
+    <section
+      className="review-panel"
+      aria-label="Visual comparison report"
+      data-job-id={job.id}
+    >
       <div className="review-heading">
         <div>
           <span className="report-label">COMPARISON REPORT</span>
           <h2>{job.name}</h2>
           <p>
-            {job.viewport.width} × {job.viewport.height} ·{' '}
-            {job.mode === 'upload' ? 'Uploaded PNGs' : 'Chromium'} · {job.id.slice(0, 8)} ·{' '}
+            {job.viewport.width} × {job.viewport.height} ·{" "}
+            {job.mode === "upload" ? "Uploaded PNGs" : "Chromium"} ·{" "}
+            {job.id.slice(0, 8)} ·{" "}
             {new Date(job.createdAt).toLocaleString(undefined, {
-              month: 'short',
-              day: 'numeric',
-              hour: 'numeric',
-              minute: '2-digit',
+              month: "short",
+              day: "numeric",
+              hour: "numeric",
+              minute: "2-digit",
             })}
           </p>
         </div>
-        <span className={`status-pill ${result.passed ? 'pass' : 'changed'}`}>
-          {result.passed ? <ShieldCheck size={14} /> : <Scan size={14} />}
-          {result.passed ? 'Within tolerance' : 'Changes detected'}
-        </span>
+        <div className="verdict">
+          <span className={`status-pill ${result.passed ? "pass" : "changed"}`}>
+            {result.passed ? <ShieldCheck size={14} /> : <Scan size={14} />}
+            {result.passed ? "Within tolerance" : "Changes detected"}
+          </span>
+          <span className="verdict-rule">
+            {result.passed ? "PASS" : "REVIEW"} /{" "}
+            {result.changedPercent.toFixed(3)}% {result.passed ? "≤" : ">"}{" "}
+            {job.allowedPercent}%
+          </span>
+        </div>
       </div>
       <dl className="report-metrics">
         <div>
-          <dt>Changed</dt>
-          <dd className={result.passed ? 'green-text' : 'red-text'}>
+          <dt>Changed area</dt>
+          <dd className={result.passed ? "green-text" : "red-text"}>
             {result.changedPercent.toFixed(3)}
             <small>%</small>
           </dd>
         </div>
         <div>
-          <dt>Pixels</dt>
+          <dt>Changed pixels / total</dt>
           <dd>
             {result.changedPixels.toLocaleString()}
             <small> / {result.totalPixels.toLocaleString()}</small>
           </dd>
         </div>
         <div>
-          <dt>Allowed</dt>
+          <dt>Allowed change</dt>
           <dd>
             {job.allowedPercent}
             <small>%</small>
           </dd>
         </div>
         <div>
-          <dt>{job.mode === 'upload' ? 'Compare time' : 'Capture + compare'}</dt>
+          <dt>
+            {job.mode === "upload" ? "Compare time" : "Capture + compare"}
+          </dt>
           <dd>
             {((job.durationMs || 0) / 1000).toFixed(1)}
             <small>s</small>
           </dd>
         </div>
       </dl>
+      <div className="report-sources" aria-label="Comparison inputs">
+        <div>
+          <span className="source-key">A / BASELINE</span>
+          <span title={job.baselineUrl || job.baselineId}>
+            {job.mode === "upload"
+              ? "Uploaded PNG"
+              : job.baselineId
+                ? `Saved reference · ${job.baselineId.slice(0, 8)}`
+                : job.baselineUrl}
+          </span>
+        </div>
+        <div>
+          <span className="source-key">B / CANDIDATE</span>
+          <span title={job.candidateUrl}>
+            {job.mode === "upload" ? "Uploaded PNG" : job.candidateUrl}
+          </span>
+        </div>
+      </div>
       <div className="viewer-toolbar">
         <div
           className="view-tabs"
           role="tablist"
           aria-label="Image view"
           onKeyDown={(event) => {
-            const keys = ['ArrowLeft', 'ArrowRight', 'Home', 'End'];
+            const keys = ["ArrowLeft", "ArrowRight", "Home", "End"];
             if (!keys.includes(event.key)) return;
             event.preventDefault();
             const current = options.findIndex((item) => item.id === view);
             const next =
-              event.key === 'Home'
+              event.key === "Home"
                 ? 0
-                : event.key === 'End'
+                : event.key === "End"
                   ? options.length - 1
-                  : (current + (event.key === 'ArrowRight' ? 1 : -1) + options.length) %
+                  : (current +
+                      (event.key === "ArrowRight" ? 1 : -1) +
+                      options.length) %
                     options.length;
             setView(options[next].id);
             document.getElementById(`view-${options[next].id}`)?.focus();
@@ -110,7 +144,7 @@ export default function ComparisonViewer({ job, onAccept, accepting }: Props) {
               id={`view-${option.id}`}
               aria-controls="image-view"
               aria-selected={view === option.id}
-              className={view === option.id ? 'selected' : ''}
+              className={view === option.id ? "selected" : ""}
               onClick={() => setView(option.id)}
             >
               <option.icon size={15} />
@@ -132,40 +166,46 @@ export default function ComparisonViewer({ job, onAccept, accepting }: Props) {
       </div>
       <div
         key={view}
-        className={`image-workbench ${view} ${zoom === '100' ? 'actual-size' : ''}`}
+        className={`image-workbench ${view} ${zoom === "100" ? "actual-size" : ""}`}
         id="image-view"
         role="tabpanel"
         aria-labelledby={`view-${view}`}
         aria-label={`${options.find((item) => item.id === view)?.label} images`}
       >
-        {view === 'split' ? (
+        {view === "split" ? (
           <div className="split-images">
             <figure>
               <figcaption>
-                <i className="source-dot baseline-dot" /> BASELINE <span>Reference</span>
+                <i className="source-dot baseline-dot" /> BASELINE{" "}
+                <span>Reference</span>
               </figcaption>
               <img
                 src={baselineImage}
                 alt={
-                  job.mode === 'upload' ? 'Baseline uploaded PNG' : 'Baseline browser screenshot'
+                  job.mode === "upload"
+                    ? "Baseline uploaded PNG"
+                    : "Baseline browser screenshot"
                 }
-                style={zoom === '100' ? { width: result.width } : undefined}
+                style={zoom === "100" ? { width: result.width } : undefined}
               />
             </figure>
             <figure>
               <figcaption>
-                <i className="source-dot candidate-dot" /> CANDIDATE <span>Current</span>
+                <i className="source-dot candidate-dot" /> CANDIDATE{" "}
+                <span>Current</span>
               </figcaption>
               <img
                 src={candidateImage}
                 alt={
-                  job.mode === 'upload' ? 'Candidate uploaded PNG' : 'Candidate browser screenshot'
+                  job.mode === "upload"
+                    ? "Candidate uploaded PNG"
+                    : "Candidate browser screenshot"
                 }
-                style={zoom === '100' ? { width: result.width } : undefined}
+                style={zoom === "100" ? { width: result.width } : undefined}
               />
             </figure>
           </div>
-        ) : view === 'diff' ? (
+        ) : view === "diff" ? (
           <figure className="single-image">
             <figcaption>
               <span>
@@ -174,9 +214,9 @@ export default function ComparisonViewer({ job, onAccept, accepting }: Props) {
               <span>Pink pixels changed · yellow edges ignored</span>
             </figcaption>
             <img
-              src={artifact(job.id, 'diff')}
+              src={artifact(job.id, "diff")}
               alt="Difference map: changed pixels in pink, ignored antialiasing edges in yellow"
-              style={zoom === '100' ? { width: result.width } : undefined}
+              style={zoom === "100" ? { width: result.width } : undefined}
             />
           </figure>
         ) : (
@@ -187,7 +227,7 @@ export default function ComparisonViewer({ job, onAccept, accepting }: Props) {
             </div>
             <div
               className="blend-images"
-              style={zoom === '100' ? { width: result.width } : undefined}
+              style={zoom === "100" ? { width: result.width } : undefined}
             >
               <img
                 className="blend-base"
@@ -199,21 +239,25 @@ export default function ComparisonViewer({ job, onAccept, accepting }: Props) {
                 src={candidateImage}
                 alt="Candidate image overlay"
                 style={
-                  view === 'overlay'
+                  view === "overlay"
                     ? { opacity: blend / 100 }
                     : { clipPath: `inset(0 0 0 ${blend}%)` }
                 }
               />
-              {view === 'swipe' ? (
+              {view === "swipe" ? (
                 <div className="swipe-line" style={{ left: `${blend}%` }}>
                   <span>↔</span>
                 </div>
               ) : null}
             </div>
             <label className="blend-control">
-              {view === 'overlay' ? 'Candidate opacity' : 'Comparison divider'}
+              {view === "overlay" ? "Candidate opacity" : "Comparison divider"}
               <input
-                aria-label={view === 'overlay' ? 'Candidate opacity' : 'Comparison divider'}
+                aria-label={
+                  view === "overlay"
+                    ? "Candidate opacity"
+                    : "Comparison divider"
+                }
                 type="range"
                 min={0}
                 max={100}
@@ -227,15 +271,15 @@ export default function ComparisonViewer({ job, onAccept, accepting }: Props) {
       </div>
       <div className="review-footer">
         <p>
-          <span className="legend-dot" />{' '}
+          <span className="legend-dot" />{" "}
           {result.passed
-            ? 'Change is within your configured tolerance.'
-            : 'Review highlighted changes before accepting a new baseline.'}
+            ? "Change is within your configured tolerance."
+            : "Review highlighted changes before accepting a new baseline."}
         </p>
         <div className="artifact-actions">
           <a
-            href={artifact(job.id, 'diff')}
-            download={`${job.name.replace(/[^a-z0-9]/gi, '-')}-diff.png`}
+            href={artifact(job.id, "diff")}
+            download={`${job.name.replace(/[^a-z0-9]/gi, "-")}-diff.png`}
           >
             <Download size={15} /> Diff PNG
           </a>
@@ -243,7 +287,11 @@ export default function ComparisonViewer({ job, onAccept, accepting }: Props) {
             href={candidateImage}
             target="_blank"
             rel="noreferrer"
-            aria-label={job.mode === 'upload' ? 'Open candidate PNG' : 'Open candidate screenshot'}
+            aria-label={
+              job.mode === "upload"
+                ? "Open candidate PNG"
+                : "Open candidate screenshot"
+            }
           >
             <ArrowUpRight size={16} />
           </a>
@@ -254,10 +302,10 @@ export default function ComparisonViewer({ job, onAccept, accepting }: Props) {
           >
             <Check size={15} />
             {job.acceptedBaselineId
-              ? 'Baseline accepted'
+              ? "Baseline accepted"
               : accepting
-                ? 'Saving…'
-                : 'Accept candidate'}
+                ? "Saving…"
+                : "Accept candidate"}
           </button>
         </div>
       </div>

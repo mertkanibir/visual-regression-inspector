@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from "react";
 import {
   Plus,
   Columns2,
@@ -15,37 +15,44 @@ import {
   X,
   Monitor,
   ArrowRight,
-} from 'lucide-react';
-import RunForm from './RunForm';
-import ComparisonViewer from './ComparisonViewer';
-import { api, artifact, type Baseline, type Job } from './types';
-type Page = 'workspace' | 'history' | 'baselines' | 'guide';
+} from "lucide-react";
+import RunForm from "./RunForm";
+import ComparisonViewer from "./ComparisonViewer";
+import { api, artifact, type Baseline, type Job } from "./types";
+type Page = "workspace" | "history" | "baselines" | "guide";
 export default function App() {
-  const [page, setPage] = useState<Page>('workspace');
+  const [page, setPage] = useState<Page>("workspace");
   const [jobs, setJobs] = useState<Job[]>([]);
   const [baselines, setBaselines] = useState<Baseline[]>([]);
-  const [selectedId, setSelectedId] = useState('');
+  const [selectedId, setSelectedId] = useState("");
   const [showForm, setShowForm] = useState(true);
-  const [baselineId, setBaselineId] = useState('');
-  const [error, setError] = useState('');
-  const [toast, setToast] = useState('');
+  const [baselineId, setBaselineId] = useState("");
+  const [error, setError] = useState("");
+  const [connectionError, setConnectionError] = useState("");
+  const [toast, setToast] = useState("");
   const [online, setOnline] = useState(false);
   const [accepting, setAccepting] = useState(false);
-  const [filter, setFilter] = useState('all');
+  const [filter, setFilter] = useState("all");
   const selected = jobs.find((job) => job.id === selectedId);
-  const completed = jobs.filter((job) => job.status === 'complete');
+  const completed = jobs.filter((job) => job.status === "complete");
   const changed = completed.filter((job) => !job.result?.passed);
-  const busy = jobs.filter((job) => ['running', 'queued'].includes(job.status));
+  const busy = jobs.filter((job) => ["running", "queued"].includes(job.status));
   const refresh = useCallback(async () => {
     try {
-      const data = await api<{ jobs: Job[]; baselines: Baseline[] }>('/api/jobs');
+      const data = await api<{ jobs: Job[]; baselines: Baseline[] }>(
+        "/api/jobs",
+      );
       setJobs(data.jobs);
       setBaselines(data.baselines);
       setOnline(true);
-      setError('');
+      setConnectionError("");
     } catch (issue) {
       setOnline(false);
-      setError(issue instanceof Error ? issue.message : 'Cannot connect to the server.');
+      setConnectionError(
+        issue instanceof Error
+          ? issue.message
+          : "Cannot connect to the server.",
+      );
     }
   }, []);
   useEffect(() => {
@@ -63,102 +70,132 @@ export default function App() {
   }, [jobs, selectedId]);
   useEffect(() => {
     if (!toast) return;
-    const timer = setTimeout(() => setToast(''), 5000);
+    const timer = setTimeout(() => setToast(""), 5000);
     return () => clearTimeout(timer);
   }, [toast]);
   function openJob(job: Job) {
     setSelectedId(job.id);
     setShowForm(false);
-    setPage('workspace');
+    setPage("workspace");
   }
   function newComparison() {
-    setBaselineId('');
+    setBaselineId("");
     setShowForm(true);
-    setPage('workspace');
+    setPage("workspace");
   }
   function created(job: Job) {
     setJobs((previous) => [job, ...previous]);
     setSelectedId(job.id);
     setShowForm(false);
-    setPage('workspace');
+    setPage("workspace");
   }
   function useBaseline(baseline: Baseline) {
     setBaselineId(baseline.id);
     setShowForm(true);
-    setPage('workspace');
+    setPage("workspace");
   }
   async function accept() {
     if (!selected) return;
+    setError("");
     setAccepting(true);
     try {
       await api<Baseline>(`/api/jobs/${selected.id}/accept`, {});
       await refresh();
-      setToast('Candidate saved as an immutable baseline. Find it in Baselines.');
+      setToast(
+        "Candidate saved as an immutable baseline. Find it in Baselines.",
+      );
     } catch (issue) {
-      setError(issue instanceof Error ? issue.message : 'Could not save baseline.');
+      setError(
+        issue instanceof Error ? issue.message : "Could not save baseline.",
+      );
     } finally {
       setAccepting(false);
     }
   }
   const history = jobs.filter(
     (job) =>
-      filter === 'all' ||
-      (filter === 'changed' && job.status === 'complete' && !job.result?.passed) ||
-      (filter === 'passed' && job.result?.passed) ||
-      (filter === 'errors' && job.status === 'error'),
+      filter === "all" ||
+      (filter === "changed" &&
+        job.status === "complete" &&
+        !job.result?.passed) ||
+      (filter === "passed" && job.result?.passed) ||
+      (filter === "errors" && job.status === "error"),
   );
   const pageTitle =
-    page === 'workspace'
-      ? 'Visual comparisons'
-      : page === 'history'
-        ? 'Run history'
-        : page === 'baselines'
-          ? 'Saved baselines'
-          : 'Capture settings';
+    page === "workspace"
+      ? "Visual comparisons"
+      : page === "history"
+        ? "Run history"
+        : page === "baselines"
+          ? "Saved baselines"
+          : "Capture settings";
   return (
     <div className="app-shell">
-      <a className="skip-link" href="#main-content">Skip to workspace</a>
+      <a className="skip-link" href="#main-content">
+        Skip to workspace
+      </a>
       <header className="app-toolbar">
         <a
           className="brand"
           href="#"
           onClick={(event) => {
             event.preventDefault();
-            setPage('workspace');
+            setPage("workspace");
           }}
         >
-          <img className="brand-icon" src="/brand/prism-mark.svg" alt="" width="40" height="40" />
+          <img
+            className="brand-icon"
+            src="/brand/prism-mark.svg"
+            alt=""
+            width="40"
+            height="40"
+          />
           <span>
             PRISM<small>Visual regression inspector</small>
           </span>
         </a>
         <nav aria-label="Main navigation">
           {[
-            { id: 'workspace', name: 'Compare', label: 'Compare', icon: Columns2 },
-            { id: 'history', name: 'Runs', label: 'Run history', icon: History },
-            { id: 'baselines', name: 'Baselines', label: 'Baselines', icon: Bookmark },
-            { id: 'guide', name: 'Help', label: 'Help', icon: CircleHelp },
+            {
+              id: "workspace",
+              name: "Compare",
+              label: "Compare",
+              icon: Columns2,
+            },
+            {
+              id: "history",
+              name: "Runs",
+              label: "Run history",
+              icon: History,
+            },
+            {
+              id: "baselines",
+              name: "Baselines",
+              label: "Baselines",
+              icon: Bookmark,
+            },
+            { id: "guide", name: "Help", label: "Help", icon: CircleHelp },
           ].map((item) => (
             <button
               key={item.id}
               aria-label={item.label}
-              aria-current={page === item.id ? 'page' : undefined}
-              className={page === item.id ? 'nav-active' : ''}
+              aria-current={page === item.id ? "page" : undefined}
+              className={page === item.id ? "nav-active" : ""}
               onClick={() => setPage(item.id as Page)}
             >
               <item.icon size={16} />
               <span>{item.name}</span>
-              {item.id === 'history' ? (
+              {item.id === "history" ? (
                 <span className="nav-count">{jobs.length}</span>
-              ) : item.id === 'baselines' ? (
+              ) : item.id === "baselines" ? (
                 <span className="nav-count">{baselines.length}</span>
               ) : null}
             </button>
           ))}
         </nav>
         <div className="toolbar-status">
-          <span className={`connection-dot ${online ? 'online' : ''}`} />
-          {online ? 'Local server connected' : 'Connecting to server'}
+          <span className={`connection-dot ${online ? "online" : ""}`} />
+          {online ? "Local server connected" : "Connecting to server"}
         </div>
         <a
           className="source-link"
@@ -173,16 +210,19 @@ export default function App() {
       <main className="main-content" id="main-content" tabIndex={-1} key={page}>
         <div className="page-heading">
           <div>
-            <span className="eyebrow">WORKSPACE / {page === 'workspace' ? 'COMPARE' : page.toUpperCase()}</span>
+            <span className="eyebrow">
+              WORKSPACE /{" "}
+              {page === "workspace" ? "COMPARE" : page.toUpperCase()}
+            </span>
             <h1>{pageTitle}</h1>
             <p>
-              {page === 'workspace'
-                ? 'Review browser captures and PNG differences.'
-                : page === 'history'
-                  ? 'Every comparison and its original artifacts.'
-                  : page === 'baselines'
-                    ? 'Accepted references for your next comparison.'
-                    : 'Capture settings, thresholds, and local storage.'}
+              {page === "workspace"
+                ? "Review browser captures and PNG differences."
+                : page === "history"
+                  ? "Every comparison and its original artifacts."
+                  : page === "baselines"
+                    ? "Accepted references for your next comparison."
+                    : "Capture settings, thresholds, and local storage."}
             </p>
           </div>
           <button className="primary-button" onClick={newComparison}>
@@ -190,11 +230,18 @@ export default function App() {
             New comparison
           </button>
         </div>
-        {error ? (
+        {error || connectionError ? (
           <div className="error-banner" role="alert">
             <CircleAlert size={16} />
-            <span>{error}</span>
-            <button className="icon-button" onClick={() => setError('')} aria-label="Dismiss error">
+            <span>{error || connectionError}</span>
+            <button
+              className="icon-button"
+              onClick={() => {
+                setError("");
+                setConnectionError("");
+              }}
+              aria-label="Dismiss error"
+            >
               <X size={15} />
             </button>
           </div>
@@ -205,7 +252,7 @@ export default function App() {
             {toast}
           </div>
         ) : null}
-        {page === 'workspace' ? (
+        {page === "workspace" ? (
           <>
             {showForm ? (
               <RunForm
@@ -216,41 +263,47 @@ export default function App() {
                 onClose={() => setShowForm(false)}
               />
             ) : null}
-            {selected?.status === 'complete' ? (
+            {!showForm && selected?.status === "complete" ? (
               <ComparisonViewer
                 key={selected.id}
                 job={selected}
                 onAccept={accept}
                 accepting={accepting}
               />
-            ) : selected?.status === 'running' || selected?.status === 'queued' ? (
+            ) : !showForm &&
+              (selected?.status === "running" ||
+                selected?.status === "queued") ? (
               <section
-                className={`progress-panel ${selected.status === 'running' ? 'running' : ''}`}
+                className={`progress-panel ${selected.status === "running" ? "running" : ""}`}
                 role="status"
               >
                 <div className="progress-indicator">
-                  {selected.status === 'queued' ? <Clock3 size={27} /> : <ScanLine size={27} />}
+                  {selected.status === "queued" ? (
+                    <Clock3 size={27} />
+                  ) : (
+                    <ScanLine size={27} />
+                  )}
                 </div>
                 <h2>
-                  {selected.status === 'queued'
-                    ? 'Comparison queued'
-                    : selected.mode === 'upload'
-                      ? 'Comparing PNGs'
-                      : 'Capturing web pages'}
+                  {selected.status === "queued"
+                    ? "Comparison queued"
+                    : selected.mode === "upload"
+                      ? "Comparing PNGs"
+                      : "Capturing web pages"}
                 </h2>
                 <p>
-                  {selected.status === 'queued'
-                    ? 'Waiting for a worker. Up to two comparisons run at once.'
-                    : selected.mode === 'upload'
-                      ? 'Decoding images and comparing pixels.'
-                      : 'Loading the baseline and candidate in Chromium; waiting for fonts and images.'}
+                  {selected.status === "queued"
+                    ? "Waiting for a worker. Up to two comparisons run at once."
+                    : selected.mode === "upload"
+                      ? "Decoding images and comparing pixels."
+                      : "Loading the baseline and candidate in Chromium; waiting for fonts and images."}
                 </p>
                 <code>
-                  {selected.name} · {selected.viewport.width} × {selected.viewport.height} ·{' '}
-                  {selected.id.slice(0, 8)}
+                  {selected.name} · {selected.viewport.width} ×{" "}
+                  {selected.viewport.height} · {selected.id.slice(0, 8)}
                 </code>
               </section>
-            ) : selected?.status === 'error' ? (
+            ) : !showForm && selected?.status === "error" ? (
               <section className="empty-panel">
                 <h2>Comparison failed</h2>
                 <p>{selected.error}</p>
@@ -270,8 +323,8 @@ export default function App() {
             ) : (
               <div className="demo-note">
                 <p>
-                  The demo changes form alignment, button styling, and build-row spacing. Use the
-                  default URLs to inspect the difference.
+                  The demo changes form alignment, button styling, and build-row
+                  spacing. Use the default URLs to inspect the difference.
                 </p>
                 <a href="/demo/baseline" target="_blank" rel="noreferrer">
                   Open baseline
@@ -283,33 +336,41 @@ export default function App() {
               <section className="recent-section">
                 <div className="section-header">
                   <h2>Recent runs</h2>
-                  <button className="text-button" onClick={() => setPage('history')}>
+                  <button
+                    className="text-button"
+                    onClick={() => setPage("history")}
+                  >
                     All runs
                     <ArrowRight size={14} />
                   </button>
                 </div>
-                <JobTable jobs={jobs.slice(0, 4)} selectedId={selectedId} onSelect={openJob} />
+                <JobTable
+                  jobs={jobs.slice(0, 4)}
+                  selectedId={selectedId}
+                  onSelect={openJob}
+                />
               </section>
             ) : null}
           </>
         ) : null}
-        {page === 'history' ? (
+        {page === "history" ? (
           <section className="history-panel">
             <div className="section-header">
               <p className="history-counts">
-                {jobs.length} runs <span>·</span> {changed.length} changed <span>·</span>{' '}
-                {completed.length - changed.length} passed <span>·</span> {busy.length} pending
+                {jobs.length} runs <span>·</span> {changed.length} changed{" "}
+                <span>·</span> {completed.length - changed.length} passed{" "}
+                <span>·</span> {busy.length} pending
               </p>
               <div className="history-filters">
                 {[
-                  ['all', 'All runs'],
-                  ['changed', 'Changed'],
-                  ['passed', 'Passed'],
-                  ['errors', 'Errors'],
+                  ["all", "All runs"],
+                  ["changed", "Changed"],
+                  ["passed", "Passed"],
+                  ["errors", "Errors"],
                 ].map(([value, label]) => (
                   <button
                     key={value}
-                    className={filter === value ? 'active' : ''}
+                    className={filter === value ? "active" : ""}
                     aria-pressed={filter === value}
                     onClick={() => setFilter(value)}
                   >
@@ -319,7 +380,11 @@ export default function App() {
               </div>
             </div>
             {history.length ? (
-              <JobTable jobs={history} selectedId={selectedId} onSelect={openJob} />
+              <JobTable
+                jobs={history}
+                selectedId={selectedId}
+                onSelect={openJob}
+              />
             ) : (
               <div className="compact-empty">
                 <History size={20} />
@@ -328,14 +393,14 @@ export default function App() {
             )}
           </section>
         ) : null}
-        {page === 'baselines' ? (
+        {page === "baselines" ? (
           <div className="baseline-list">
             {baselines.length ? (
               baselines.map((baseline) => (
                 <article className="baseline-row" key={baseline.id}>
                   <div className="baseline-image">
                     <img
-                      src={artifact(baseline.id, 'baseline')}
+                      src={artifact(baseline.id, "baseline")}
                       alt={`Accepted image for ${baseline.name}`}
                     />
                   </div>
@@ -346,10 +411,17 @@ export default function App() {
                       <code>
                         {baseline.viewport.width} × {baseline.viewport.height}
                       </code>
-                      <span>{new Date(baseline.createdAt).toLocaleString()}</span>
+                      <span>
+                        {new Date(baseline.createdAt).toLocaleString()}
+                      </span>
                     </div>
-                    <p className="baseline-id">Reference {baseline.id.slice(0, 8)}</p>
-                    <button className="secondary-button" onClick={() => useBaseline(baseline)}>
+                    <p className="baseline-id">
+                      Reference {baseline.id.slice(0, 8)}
+                    </p>
+                    <button
+                      className="secondary-button"
+                      onClick={() => useBaseline(baseline)}
+                    >
                       Use this baseline
                       <ArrowRight size={14} />
                     </button>
@@ -360,7 +432,8 @@ export default function App() {
               <section className="empty-panel">
                 <h2>No saved baselines</h2>
                 <p>
-                  Accept a completed candidate to save a fixed reference for future comparisons.
+                  Accept a completed candidate to save a fixed reference for
+                  future comparisons.
                 </p>
                 <button className="secondary-button" onClick={newComparison}>
                   New comparison
@@ -369,53 +442,63 @@ export default function App() {
             )}
           </div>
         ) : null}
-        {page === 'guide' ? (
+        {page === "guide" ? (
           <div className="guide-panel">
             <section>
               <h2>Capture environment</h2>
               <p>
-                HTTP(S) pages open in isolated Chromium contexts. Captures use device scale 1, light
-                mode, locale en-US, and time zone UTC. Fonts and images receive bounded readiness
-                waits. Animations and transitions are disabled. Screenshots cover the selected
+                HTTP(S) pages open in isolated Chromium contexts. Captures use
+                device scale 1, light mode, locale en-US, and time zone UTC.
+                Fonts and images receive bounded readiness waits. Animations and
+                transitions are disabled. Screenshots cover the selected
                 viewport.
               </p>
               <h2>Comparison thresholds</h2>
               <p>
-                Pixelmatch uses a fixed 0.1 perceptual sensitivity and ignores detected antialiasing
-                edges. Allowed change is the percentage of changed pixels permitted before a run
-                fails. The decision uses the unrounded percentage.
+                Pixelmatch uses a fixed 0.1 perceptual sensitivity and ignores
+                detected antialiasing edges. Allowed change is the percentage of
+                changed pixels permitted before a run fails. The decision uses
+                the unrounded percentage.
               </p>
               <h2>Baselines</h2>
               <p>
-                Accept candidate saves an immutable PNG reference. The original report stays intact.
-                Future captures against that reference use its dimensions.
+                Accept candidate saves an immutable PNG reference. The original
+                report stays intact. Future captures against that reference use
+                its dimensions.
               </p>
             </section>
             <section>
               <h2>Local development</h2>
               <p>
-                Prism binds to loopback. URLs can reach local services: capture trusted pages only.
-                Public hosting requires authentication, destination restrictions, network isolation,
-                quotas, and private artifact storage.
+                Prism binds to loopback. URLs can reach local services: capture
+                trusted pages only. Public hosting requires authentication,
+                destination restrictions, network isolation, quotas, and private
+                artifact storage.
               </p>
               <h2>Reproducible input</h2>
               <p>
-                Dynamic timestamps, random content, slow widgets, and platform fonts can change
-                screenshots. Use deterministic fixtures and identical capture environments.
+                Dynamic timestamps, random content, slow widgets, and platform
+                fonts can change screenshots. Use deterministic fixtures and
+                identical capture environments.
               </p>
               <pre>
-                npm ci{'\n'}npx playwright install chromium{'\n'}npm run dev
+                npm ci{"\n"}npx playwright install chromium{"\n"}npm run dev
               </pre>
               <p>
-                History and PNGs live in <code>.prism/</code>. Stop the server before backing up or
-                deleting this directory.
+                History and PNGs live in <code>.prism/</code>. Stop the server
+                before backing up or deleting this directory.
               </p>
             </section>
           </div>
         ) : null}
         <footer className="workspace-footer">
           <span>PRISM / LOCAL WORKSPACE</span>
-          <span>{completed.length} completed {completed.length === 1 ? 'comparison' : 'comparisons'} · {baselines.length} saved {baselines.length === 1 ? 'baseline' : 'baselines'}</span>
+          <span>
+            {completed.length} completed{" "}
+            {completed.length === 1 ? "comparison" : "comparisons"} ·{" "}
+            {baselines.length} saved{" "}
+            {baselines.length === 1 ? "baseline" : "baselines"}
+          </span>
         </footer>
       </main>
     </div>
@@ -441,7 +524,7 @@ function JobTable({
       </div>
       {jobs.map((job) => (
         <div
-          className={`job-row ${selectedId === job.id ? 'row-selected' : ''}`}
+          className={`job-row ${selectedId === job.id ? "row-selected" : ""}`}
           key={job.id}
           onClick={() => onSelect(job)}
           role="row"
@@ -456,13 +539,17 @@ function JobTable({
               }}
             >
               <span className="job-mini-icon">
-                {job.mode === 'upload' ? <Layers3 size={17} /> : <Monitor size={17} />}
+                {job.mode === "upload" ? (
+                  <Layers3 size={17} />
+                ) : (
+                  <Monitor size={17} />
+                )}
               </span>
               <span>
                 <strong>{job.name}</strong>
                 <small>
-                  {job.mode === 'upload'
-                    ? 'PNG comparison'
+                  {job.mode === "upload"
+                    ? "PNG comparison"
                     : (() => {
                         try {
                           return new URL(job.candidateUrl!).hostname;
@@ -475,29 +562,43 @@ function JobTable({
             </button>
           </span>
           <span role="cell">
+            <span className="mobile-cell-label">Viewport</span>
             {job.viewport.width} × {job.viewport.height}
           </span>
-          <span role="cell" className={job.result && !job.result.passed ? 'red-text' : ''}>
-            {job.result ? `${job.result.changedPercent.toFixed(3)}%` : '—'}
+          <span
+            role="cell"
+            className={job.result && !job.result.passed ? "red-text" : ""}
+          >
+            <span className="mobile-cell-label">Pixel change</span>
+            {job.result ? `${job.result.changedPercent.toFixed(3)}%` : "—"}
           </span>
           <span role="cell">
+            <span className="mobile-cell-label">Status</span>
             <span
-              className={`status-pill ${job.status === 'complete' ? (job.result?.passed ? 'pass' : 'changed') : job.status === 'error' ? 'changed' : 'pending'}`}
+              className={`status-pill ${job.status === "complete" ? (job.result?.passed ? "pass" : "changed") : job.status === "error" ? "changed" : "pending"}`}
             >
               <i />
-              {job.status === 'complete'
+              {job.status === "complete"
                 ? job.result?.passed
-                  ? 'Passed'
-                  : 'Changed'
-                : job.status === 'error'
-                  ? 'Error'
-                  : job.status === 'running'
-                    ? 'Running'
-                    : 'Queued'}
+                  ? "Passed"
+                  : "Changed"
+                : job.status === "error"
+                  ? "Error"
+                  : job.status === "running"
+                    ? "Running"
+                    : "Queued"}
             </span>
           </span>
           <span role="cell" className="row-time">
-            {new Date(job.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            <span>
+              <span className="mobile-cell-label">Created</span>
+              {new Date(job.createdAt).toLocaleString([], {
+                month: "short",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </span>
             <ChevronRight size={15} />
           </span>
         </div>
