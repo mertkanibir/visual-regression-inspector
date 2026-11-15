@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import {
   Plus,
-  Aperture,
   Columns2,
   CircleHelp,
   ScanLine,
@@ -118,6 +117,7 @@ export default function App() {
           : 'Capture settings';
   return (
     <div className="app-shell">
+      <a className="skip-link" href="#main-content">Skip to workspace</a>
       <header className="app-toolbar">
         <a
           className="brand"
@@ -127,11 +127,9 @@ export default function App() {
             setPage('workspace');
           }}
         >
-          <span className="brand-icon">
-            <Aperture size={24} strokeWidth={1.8} />
-          </span>
+          <img className="brand-icon" src="/brand/prism-mark.svg" alt="" width="40" height="40" />
           <span>
-            prism<small>visual review</small>
+            PRISM<small>Visual regression inspector</small>
           </span>
         </a>
         <nav aria-label="Main navigation">
@@ -172,9 +170,10 @@ export default function App() {
           <ArrowUpRight size={13} />
         </a>
       </header>
-      <main className="main-content" key={page}>
+      <main className="main-content" id="main-content" tabIndex={-1} key={page}>
         <div className="page-heading">
           <div>
+            <span className="eyebrow">WORKSPACE / {page === 'workspace' ? 'COMPARE' : page.toUpperCase()}</span>
             <h1>{pageTitle}</h1>
             <p>
               {page === 'workspace'
@@ -414,6 +413,10 @@ export default function App() {
             </section>
           </div>
         ) : null}
+        <footer className="workspace-footer">
+          <span>PRISM / LOCAL WORKSPACE</span>
+          <span>{completed.length} completed {completed.length === 1 ? 'comparison' : 'comparisons'} · {baselines.length} saved {baselines.length === 1 ? 'baseline' : 'baselines'}</span>
+        </footer>
       </main>
     </div>
   );
