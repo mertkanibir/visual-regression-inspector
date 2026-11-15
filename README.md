@@ -1,21 +1,10 @@
-<h1 align="center">Prism</h1>
+<img src="public/brand/prism-mark.svg" width="48" height="48" alt="Prism registration-frame mark" />
 
-<p align="center">Visual regression analysis with real browser captures, pixel diffs, and immutable baselines.</p>
+# Prism
 
-<p align="center">
-  <a href="https://react.dev/"><img src="https://img.shields.io/badge/React-149ECA?style=plastic&logo=react&logoColor=white" alt="React" /></a>
-  <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-3178C6?style=plastic&logo=typescript&logoColor=white" alt="TypeScript" /></a>
-  <a href="https://vite.dev/"><img src="https://img.shields.io/badge/Vite-646CFF?style=plastic&logo=vite&logoColor=white" alt="Vite" /></a>
-</p>
+A local visual regression inspector. Capture two pages in Chromium, measure the pixel difference, and review the result against an explicit reference.
 
-<p align="center">
-  <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/Node.js%2024-339933?style=plastic&logo=nodedotjs&logoColor=white" alt="Node.js 24" /></a>
-  <a href="https://expressjs.com/"><img src="https://img.shields.io/badge/Express-000000?style=plastic&logo=express&logoColor=white" alt="Express" /></a>
-  <a href="https://playwright.dev/"><img src="https://img.shields.io/badge/Playwright-2EAD33?style=plastic" alt="Playwright" /></a>
-  <a href="https://github.com/mapbox/pixelmatch"><img src="https://img.shields.io/badge/Pixelmatch-D63384?style=plastic" alt="Pixelmatch" /></a>
-</p>
-
-A local developer tool that turns two web pages into reviewable evidence of a visual regression. Prism captures real Chromium screenshots, compares pixels, and keeps the report and images together so a change can be inspected and accepted deliberately.
+React + TypeScript · Node.js 24 · Playwright · Pixelmatch
 
 ![Prism review workspace](docs/screenshot.png)
 
@@ -114,13 +103,30 @@ The tests use actual Chromium; they do not mock a screenshot result.
 | API integration | Real baseline/candidate capture, downloadable diff, zero-diff rerun against an accepted snapshot, persisted history after restart |
 | Concurrency | 30 simultaneous submissions produce exactly 20 admissions and 10 queue-limit responses; 8 simultaneous acceptance calls create one baseline |
 | Recovery and validation | Interrupted jobs become errors; a real transient rename failure rejects its caller and later queued writes recover in order; invalid protocols, credentials, PNGs, and cross-site writes are rejected |
-| Browser story | Run demo, inspect all four views, accept baseline, rerun to zero changes, upload matching PNGs, browse history, and check a 390 px viewport without horizontal overflow or page errors |
+| Browser story | Run demo, inspect all four views, accept baseline, rerun to zero changes, upload matching PNGs, browse history, preserve an action error across a successful background poll, and check a 390 px viewport without horizontal overflow or page errors |
 
-The included 1280 × 800 demo measured **13,429 changed pixels out of 1,024,000 (1.311%)** in the local browser walkthrough. Comparing its candidate to the accepted snapshot measured **0 changed pixels**. These are fixture results, not a throughput benchmark or a promise of identical percentages across operating systems. `docs/` contains the actual captured baseline, candidate, difference, desktop workspace, and mobile workspace PNGs.
+The included 1280 × 800 demo measured **22,888 changed pixels out of 1,024,000 (2.235%)** in the local browser walkthrough. Comparing its candidate to the accepted snapshot measured **0 changed pixels**. These are fixture results, not a throughput benchmark or a promise of identical percentages across operating systems. `docs/` contains the actual captured baseline, candidate, difference, desktop workspace, and mobile workspace PNGs.
 
 CI repeats tests, build, and the browser story on Node 24 / Ubuntu, then uploads the PNG evidence.
 
-The review interface uses a dark studio canvas with locally bundled typography. Form/result introductions and image-mode transitions run on real UI state changes; API polling does not replay them. A running capture uses an indeterminate indicator, with no fabricated completion percentage. All motion respects `prefers-reduced-motion`. To record the existing browser workflow as a short local demonstration, run `PRISM_RECORD_VIDEO=1 npm run test:browser`; it saves `docs/motion-demo.webm`.
+## Review workspace
+
+The report preserves the original comparison inputs. A saved reference shows its baseline ID; URL runs show both source addresses; uploads are labelled as uploaded PNGs rather than browser captures. The verdict includes the percentage comparison that produced it. A new comparison opens a focused configuration form instead of leaving the previous report underneath it.
+
+The primary action creates a comparison. Acceptance is a separate action: it saves an immutable reference and leaves the original report unchanged. Connection errors and action errors have separate state, so a healthy history refresh cannot dismiss a failed acceptance.
+
+| Screen | Evidence |
+| --- | --- |
+| Capture configuration | [URL inputs, PNG mode, viewport and tolerance](docs/capture-settings.png) |
+| Comparison report | [Side-by-side workspace](docs/screenshot.png) |
+| Difference map | [Measured changed pixels](docs/difference-view.png) |
+| Baseline library | [Accepted immutable reference](docs/saved-baselines.png) |
+| Run log | [History with status, time and dimensions](docs/run-history.png) |
+| Mobile review | [390 px workspace and labelled run summaries](docs/mobile.png) |
+
+The logo, palette, type and layout decisions are documented in [Design notes](docs/DESIGN.md). [Change history](CHANGELOG.md) records the redesign and reliability updates.
+
+The review interface uses a warm neutral shell and a dark image canvas. Monospaced measurements, baseline/candidate provenance, and the explicit tolerance rule stay next to the images. The mobile run log reflows into labelled summaries. A running capture uses an indeterminate indicator, with no fabricated completion percentage. All motion respects `prefers-reduced-motion`. To record the existing browser workflow as a short local demonstration, run `PRISM_RECORD_VIDEO=1 npm run test:browser`; it saves `docs/motion-demo.webm`.
 
 ## Decisions and tradeoffs
 
