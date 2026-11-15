@@ -57,8 +57,7 @@ export default function ComparisonViewer({ job, onAccept, accepting }: Props) {
             {result.passed ? "Within tolerance" : "Changes detected"}
           </span>
           <span className="verdict-rule">
-            {result.passed ? "PASS" : "REVIEW"} /{" "}
-            {result.changedPercent.toFixed(3)}% {result.passed ? "≤" : ">"}{" "}
+            {result.passed ? "PASS" : "REVIEW"} / CHANGE {result.passed ? "≤" : ">"}{" "}
             {job.allowedPercent}%
           </span>
         </div>
@@ -66,7 +65,10 @@ export default function ComparisonViewer({ job, onAccept, accepting }: Props) {
       <dl className="report-metrics">
         <div>
           <dt>Changed area</dt>
-          <dd className={result.passed ? "green-text" : "red-text"}>
+          <dd
+            className={result.passed ? "green-text" : "red-text"}
+            title={`Unrounded change: ${result.changedPercent}%`}
+          >
             {result.changedPercent.toFixed(3)}
             <small>%</small>
           </dd>
