@@ -1,12 +1,38 @@
-<img src="public/brand/prism-mark.svg" width="48" height="48" alt="Prism registration-frame mark" />
+<p align="center"><img src="public/brand/prism-mark.svg" width="48" height="48" alt="Prism registration-frame mark" /></p>
 
-# Prism
+<h1 align="center">Prism</h1>
 
-A local visual regression inspector. Capture two pages in Chromium, measure the pixel difference, and review the result against an explicit reference.
+<p align="center">A local visual regression inspector. Capture two pages in Chromium, measure the pixel difference, and review the result against an explicit reference.</p>
 
-React + TypeScript · Node.js 24 · Playwright · Pixelmatch
+<p align="center">
+  <a href="https://react.dev/"><img src="https://img.shields.io/badge/React-149ECA?style=plastic&logo=react&logoColor=white" alt="React" /></a>
+  <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-3178C6?style=plastic&logo=typescript&logoColor=white" alt="TypeScript" /></a>
+  <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/Node.js%2024-339933?style=plastic&logo=nodedotjs&logoColor=white" alt="Node.js 24" /></a>
+</p>
 
-![Prism review workspace](docs/screenshot.png)
+<p align="center">
+  <a href="https://playwright.dev/"><img src="https://img.shields.io/badge/Playwright-2EAD33?style=plastic&logoColor=white" alt="Playwright" /></a>
+  <a href="https://github.com/mapbox/pixelmatch"><img src="https://img.shields.io/badge/Pixelmatch-E8593D?style=plastic&logoColor=white" alt="Pixelmatch" /></a>
+  <a href="https://expressjs.com/"><img src="https://img.shields.io/badge/Express-000000?style=plastic&logo=express&logoColor=white" alt="Express" /></a>
+</p>
+
+
+<p align="center">
+  <a href="docs/screenshot.png"><img src="docs/screenshot.png" alt="Prism review workspace" width="960" /></a>
+</p>
+
+<details>
+<summary>View the difference inspector and mobile workspace</summary>
+
+<p align="center">
+  <a href="docs/difference-view.png"><img src="docs/difference-view.png" alt="Prism measured pixel difference view" width="960" /></a>
+</p>
+
+<p align="center">
+  <a href="docs/mobile.png"><img src="docs/mobile.png" alt="Prism comparison workspace on mobile" width="390" /></a>
+</p>
+
+</details>
 
 ## Why I built it
 
